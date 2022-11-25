@@ -127,7 +127,7 @@ int htu21dSetup (const int pinBase)
   int status ;
 
   if ((fd = wiringPiI2CSetup (I2C_ADDRESS)) < 0)
-    return FALSE ;
+    return fd ;
 
   node = wiringPiNewNode (pinBase, 2) ;
 
@@ -138,7 +138,7 @@ int htu21dSetup (const int pinBase)
 
   data = 0xFE ;
   if (write (fd, &data, 1) != 1)
-    return FALSE ;
+    return -1 ;
 
   delay (15) ;
 
@@ -146,5 +146,5 @@ int htu21dSetup (const int pinBase)
 
   status = wiringPiI2CReadReg8 (fd, 0xE7) ;
 
-  return (status == 0x02) ? TRUE : FALSE ;
+  return (status == 0x02) ? fd : -1 ;
 }

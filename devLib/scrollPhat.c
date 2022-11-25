@@ -426,5 +426,5 @@ int scrollPhatSetup (void)
   scrollPhatClear () ;
   scrollPhatPrintSpeed (100) ;
 
-  return 0 ;
+  return scrollPhatFd;
 }
