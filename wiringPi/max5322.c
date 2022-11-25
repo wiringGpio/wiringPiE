@@ -50,7 +50,7 @@ static void myAnalogWrite (struct wiringPiNodeStruct *node, int pin, int value)
   spiData [0] = chanBits ;
   spiData [1] = dataBits ;
 
-  wiringPiSPIDataRW (node->fd, spiData, 2) ;
+  wiringPiSPIDataRW (node->data0, spiData, 2) ;
 }
 
 /*
@@ -65,20 +65,23 @@ int max5322Setup (const int pinBase, int spiChannel)
   struct wiringPiNodeStruct *node ;
   unsigned char spiData [2] ;
 
-  if (wiringPiSPISetup (spiChannel, 8000000) < 0)	// 10MHz Max
-    return FALSE ;
+  int fd = -1;
+  if ((fd= wiringPiSPISetup(spiChannel, 8000000)) < 0 )
+    return fd ;
 
   node = wiringPiNewNode (pinBase, 2) ;
 
-  node->fd          = spiChannel ;
+  node->fd          = fd ;
+  node->data0 = spiChannel;
   node->analogWrite = myAnalogWrite ;
+  
 
 // Enable both DACs
 
   spiData [0] = 0b11100000 ;
   spiData [1] = 0 ;
   
-  wiringPiSPIDataRW (node->fd, spiData, 2) ;
+  wiringPiSPIDataRW (node->data0, spiData, 2) ;
 
   return TRUE ;
 }

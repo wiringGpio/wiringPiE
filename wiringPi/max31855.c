@@ -36,7 +36,7 @@ static int myAnalogRead (struct wiringPiNodeStruct *node, int pin)
   int temp ;
   int chan = pin - node->pinBase ;
 
-  wiringPiSPIDataRW (node->fd, (unsigned char *)&spiData, 4) ;
+  wiringPiSPIDataRW (node->data0, (unsigned char *)&spiData, 4) ;
 
   spiData = __bswap_32(spiData) ;
 
@@ -86,14 +86,16 @@ static int myAnalogRead (struct wiringPiNodeStruct *node, int pin)
 int max31855Setup (const int pinBase, int spiChannel)
 {
   struct wiringPiNodeStruct *node ;
-
-  if (wiringPiSPISetup (spiChannel, 5000000) < 0)	// 5MHz - prob 4 on the Pi
-    return FALSE ;
+  
+  int fd = -1;
+  if ((fd = wiringPiSPISetup (spiChannel, 5000000)) < 0)	// 5MHz - prob 4 on the Pi
+    return fd ;
 
   node = wiringPiNewNode (pinBase, 4) ;
 
-  node->fd         = spiChannel ;
+  node->fd = fd;
+  node->data0         = spiChannel ;
   node->analogRead = myAnalogRead ;
 
-  return TRUE ;
+  return fd ;
 }

@@ -169,13 +169,15 @@ int mcp23s08Setup (const int pinBase, const int spiPort, const int devId)
 {
   struct wiringPiNodeStruct *node ;
 
-  if (wiringPiSPISetup (spiPort, MCP_SPEED) < 0)
-    return FALSE ;
+  int fd = -1;
+  if ((fd = wiringPiSPISetup (spiPort, MCP_SPEED)) < 0)
+    return fd ;
 
   writeByte (spiPort, devId, MCP23x08_IOCON, IOCON_INIT) ;
 
   node = wiringPiNewNode (pinBase, 8) ;
 
+  node->fd = fd;
   node->data0           = spiPort ;
   node->data1           = devId ;
   node->pinMode         = myPinMode ;
@@ -184,5 +186,5 @@ int mcp23s08Setup (const int pinBase, const int spiPort, const int devId)
   node->digitalWrite    = myDigitalWrite ;
   node->data2           = readByte (spiPort, devId, MCP23x08_OLAT) ;
 
-  return TRUE ;
+  return fd ;
 }

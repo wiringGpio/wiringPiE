@@ -47,7 +47,7 @@ static int myAnalogRead (struct wiringPiNodeStruct *node, int pin)
   spiData [0] = chanBits ;
   spiData [1] = 0 ;
 
-  wiringPiSPIDataRW (node->fd, spiData, 2) ;
+  wiringPiSPIDataRW (node->data0, spiData, 2) ;
 
   return ((spiData [0] << 8) | (spiData [1] >> 1)) & 0x3FF ;
 }
@@ -64,12 +64,14 @@ int mcp3002Setup (const int pinBase, int spiChannel)
 {
   struct wiringPiNodeStruct *node ;
 
-  if (wiringPiSPISetup (spiChannel, 1000000) < 0)
-    return FALSE ;
+  int fd = -1;
+  if ((fd = wiringPiSPISetup (spiChannel, 1000000)) < 0)
+    return fd ;
 
   node = wiringPiNewNode (pinBase, 2) ;
 
-  node->fd         = spiChannel ;
+  node->fd         = fd ;
+  node->data0 = spiChannel;
   node->analogRead = myAnalogRead ;
 
   return TRUE ;
