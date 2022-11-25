@@ -239,7 +239,7 @@ int rht03Setup (const int pinBase, const int piPin)
   struct wiringPiNodeStruct *node ;
 
   if ((piPin & PI_GPIO_MASK) != 0)	// Must be an on-board pin
-    return FALSE ;
+    return -1 ;
   
 // 2 pins - temperature and humidity
 
@@ -248,5 +248,5 @@ int rht03Setup (const int pinBase, const int piPin)
   node->fd         = piPin ;
   node->analogRead = myAnalogRead ;
 
-  return TRUE ;
+  return piPin ;
 }

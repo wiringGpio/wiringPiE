@@ -380,7 +380,7 @@ int drcSetupNet (const int pinBase, const int numPins, const char *ipAddress, co
   struct wiringPiNodeStruct *node ;
 
   if ((fd = _drcSetupNet (ipAddress, port, password)) < 0)
-    return FALSE ;
+    return fd ;
 
   len = sizeof (struct drcNetComStruct) ;
 
@@ -401,5 +401,5 @@ int drcSetupNet (const int pinBase, const int numPins, const char *ipAddress, co
 //node->digitalWrite8    = myDigitalWrite8 ;
   node->pwmWrite         = myPwmWrite ;
 
-  return TRUE ;
+  return fd ;
 }

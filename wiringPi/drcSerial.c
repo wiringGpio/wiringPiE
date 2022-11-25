@@ -151,7 +151,7 @@ int drcSetupSerial (const int pinBase, const int numPins, const char *device, co
   struct wiringPiNodeStruct *node ;
 
   if ((fd = serialOpen (device, baud)) < 0)
-    return FALSE ;
+    return fd ;
 
   delay (10) ;	// May need longer if it's an Uno that reboots on the open...
 
@@ -192,5 +192,5 @@ int drcSetupSerial (const int pinBase, const int numPins, const char *device, co
   node->digitalWrite    = myDigitalWrite ;
   node->pwmWrite        = myPwmWrite ;
 
-  return TRUE ;
+  return fd ;
 }
