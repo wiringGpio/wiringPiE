@@ -77,6 +77,22 @@
 #include "wiringPi.h"
 #include "../version.h"
 
+
+//  Logging
+//
+
+void wiringPiSetLoggingCallback(wiringGpioLoggingCallback function)
+{
+    LogFunction = function;
+}
+
+void wiringPiSetLoggingLevel(wiringGpioLogLevel level)
+{
+    LoggingLevel = level;
+}
+
+
+
 // Environment Variables
 
 #define	ENV_DEBUG	"WIRINGPI_DEBUG"

@@ -24,6 +24,29 @@
 #ifndef	__WIRING_PI_H__
 #define	__WIRING_PI_H__
 
+
+ //  Logging
+ //
+
+
+#include "wiringGpioLogging.h"
+
+	// Logging Callback
+extern wiringGpioLoggingCallback LogFunction;
+
+//  Log Level
+extern wiringGpioLogLevel LoggingLevel;
+
+extern void wiringPiSetLoggingCallback(wiringGpioLoggingCallback);
+extern void wiringPiSetLoggingLevel(wiringGpioLogLevel level);
+
+//  Log functions
+void Log(wiringGpioLogLevel level, const char* sender, const char* function, const char* data);
+void LogFormatted(wiringGpioLogLevel level, const char* sender, const char* function, const char* format, ...);
+
+
+
+
 // C doesn't have true/false by default and I can never remember which
 //	way round they are, so ...
 //	(and yes, I know about stdbool.h but I like capitals for these and I'm old)

@@ -47,6 +47,7 @@ LIBS    = -lm -lpthread -lrt -lcrypt
 ###############################################################################
 
 SRC	=	wiringPi.c						\
+		Logging.c						\
 		wiringSerial.c wiringShift.c				\
 		piHiPri.c piThread.c					\
 		wiringPiSPI.c wiringPiI2C.c				\
