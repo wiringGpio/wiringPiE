@@ -89,7 +89,12 @@ int wiringPiSPIDataRW(int channel, unsigned char* data, int len)
 	spi.speed_hz = spiSpeeds[channel];
 	spi.bits_per_word = spiBPW;
 
-	return ioctl(spiFds[channel], SPI_IOC_MESSAGE(1), &spi);
+	int ret = -1;
+	if ((ret = ioctl(spiFds[channel], SPI_IOC_MESSAGE(1), &spi))
+	{
+		LogFormatted(LogLevelError, "wiringPiSPI.c", "wiringPiSPIDataRW", "Unable to read/write SPI channel %d. Error %d.", channel, ret);
+	}
+	return ret;
 }
 
 
@@ -113,7 +118,7 @@ int wiringPiSPISetupMode(int channel, int speed, int mode)
 
 	if ((fd = open(spiDev, O_RDWR)) < 0)
 	{
-		Log(LogLevelError, "wiringPiSPI.c", "wiringPiSPISetupMode", "Unable to open the SPI channel %d in mode %d. Error %s", channel, mode, strerror(errno));
+		Log(LogLevelError, "wiringPiSPI.c", "wiringPiSPISetupMode", "Unable to open the SPI channel %d in mode %d. Error %d: %s.", channel, mode, fd, strerror(errno));
 		return fd;
 	}
 
@@ -121,22 +126,22 @@ int wiringPiSPISetupMode(int channel, int speed, int mode)
 	spiFds[channel] = fd;
 
 	// Set SPI parameters.
-
-	if (ioctl(fd, SPI_IOC_WR_MODE, &mode) < 0)
+	int ret = -1;
+	if ((ret = ioctl(fd, SPI_IOC_WR_MODE, &mode)) < 0)
 	{
-		LogFormatted(LogLevelError, "wiringPiSPI.c", "wiringPiSPISetupMode", "SPI Mode Change failure channel %d: %s\n", channel, strerror(errno));
+		LogFormatted(LogLevelError, "wiringPiSPI.c", "wiringPiSPISetupMode", "SPI Mode Change failure channel %d. Error %d: %s.", channel, ret, strerror(errno));
 		return -1;
 	}
 
-	if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &spiBPW) < 0)
+	if ((ret =ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &spiBPW)) < 0)
 	{
-		LogFormatted(LogLevelError, "wiringPiSPI.c", "wiringPiSPISetupMode", "SPI BPW Change failure channel %d: %s\n", channel, strerror(errno));
+		LogFormatted(LogLevelError, "wiringPiSPI.c", "wiringPiSPISetupMode", "SPI BPW Change failure channel %d: Error %d: %s.", channel, ret, strerror(errno));
 		return -1;
 	}
 
-	if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed) < 0)
+	if ((ret =ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed)) < 0)
 	{
-		LogFormatted(LogLevelError, "wiringPiSPI.c", "wiringPiSPISetupMode", "SPI Speed Change failure channel %d: %s\n", channel, strerror(errno));
+		LogFormatted(LogLevelError, "wiringPiSPI.c", "wiringPiSPISetupMode", "SPI Speed Change failure channel %d: Error %d: %s.", channel, ret, strerror(errno));
 		return -1;
 	}
 

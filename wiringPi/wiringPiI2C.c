@@ -125,7 +125,7 @@ int wiringPiI2CRead(int fd)
 	if ((ret = i2c_smbus_access(fd, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &data) < 0)
 	{
 		LogFormatted(LogLevelError, "wiringPiI2C.c", "wiringPiI2CRead", "Error reading fd %d. Error code %d.", fd, ret);
-			return ret;
+		return ret;
 	}
 	else
 	{
@@ -148,7 +148,7 @@ int wiringPiI2CReadReg8(int fd, int reg)
 	if ((ret = i2c_smbus_access(fd, I2C_SMBUS_READ, reg, I2C_SMBUS_BYTE_DATA, &data) < 0)
 	{
 		LogFormatted(LogLevelError, "wiringPiI2C.c", "wiringPiI2CReadReg8", "Error reading fd %d register 0x%x. Error code %d.", fd, reg, ret);
-			return ret;
+		return ret;
 	}
 	else
 	{
@@ -231,16 +231,16 @@ int wiringPiI2CWriteReg16(int fd, int reg, int value)
 int wiringPiI2CSetupInterface(const char* device, int devId)
 {
 	int fd;
-
 	if ((fd = open(device, O_RDWR)) < 0)
 	{
-		LogFormatted(LogLevelError, "wiringPiI2C.c", "wiringPiI2CSetupInterface", "Unable to open I2C device: %s id 0x%x. Error %s.", device, devId, strerror(errno));
+		LogFormatted(LogLevelError, "wiringPiI2C.c", "wiringPiI2CSetupInterface", "Unable to open I2C device: %s id 0x%x. Error code %d: %s.", device, devId, fd, strerror(errno));
 		return -1;
 	}
 
-	if (ioctl(fd, I2C_SLAVE, devId) < 0)
+	int ret = -1;
+	if ((ret = ioctl(fd, I2C_SLAVE, devId)) < 0)
 	{
-		LogFormatted(LogLevelError, "wiringPiI2C.c", "wiringPiI2CSetupInterface", "Unable to select I2C device:%s id 0x%x. Error %s.", device, devId, strerror(errno));
+		LogFormatted(LogLevelError, "wiringPiI2C.c", "wiringPiI2CSetupInterface", "Unable to select I2C device:%s id 0x%x. Error code %d: %s.", device, devId, ret, strerror(errno));
 		return -1;
 	}
 
