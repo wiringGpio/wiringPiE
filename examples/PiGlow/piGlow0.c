@@ -36,7 +36,7 @@ int main (void)
 
   wiringPiSetupSys () ;
 
-  sn3218Setup (LED_BASE) ;
+  sn3218Setup (1, LED_BASE) ;
 
   for (;;)
   {
