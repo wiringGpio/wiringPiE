@@ -122,7 +122,7 @@ int wiringPiI2CRead(int fd)
 	union i2c_smbus_data data;
 
 	int ret = -1;
-	if ((ret = i2c_smbus_access(fd, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &data) < 0)
+	if ((ret = i2c_smbus_access(fd, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &data)) < 0)
 	{
 		LogFormatted(LogLevelError, "wiringPiI2C.c", "wiringPiI2CRead", "Error reading fd %d. Error code %d.", fd, ret);
 		return ret;
@@ -145,7 +145,7 @@ int wiringPiI2CReadReg8(int fd, int reg)
 	union i2c_smbus_data data;
 
 	int ret = -1;
-	if ((ret = i2c_smbus_access(fd, I2C_SMBUS_READ, reg, I2C_SMBUS_BYTE_DATA, &data) < 0)
+	if ((ret = i2c_smbus_access(fd, I2C_SMBUS_READ, reg, I2C_SMBUS_BYTE_DATA, &data)) < 0)
 	{
 		LogFormatted(LogLevelError, "wiringPiI2C.c", "wiringPiI2CReadReg8", "Error reading fd %d register 0x%x. Error code %d.", fd, reg, ret);
 		return ret;
@@ -161,13 +161,15 @@ int wiringPiI2CReadReg16(int fd, int reg)
 	union i2c_smbus_data data;
 
 	int ret = -1;
-	if ((ret = i2c_smbus_access(fd, I2C_SMBUS_READ, reg, I2C_SMBUS_WORD_DATA, &data) < 0)
+	if ((ret = i2c_smbus_access(fd, I2C_SMBUS_READ, reg, I2C_SMBUS_WORD_DATA, &data)) < 0)
 	{
 		LogFormatted(LogLevelError, "wiringPiI2C.c", "wiringPiI2CReadReg16", "Error reading fd %d register 0x%x. Error code %d.", fd, reg, ret);
 			return ret;
 	}
 	else
+	{
 		return data.word & 0xFFFF;
+	}
 }
 
 

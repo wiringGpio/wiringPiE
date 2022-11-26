@@ -118,7 +118,7 @@ int wiringPiSPISetupMode(int channel, int speed, int mode)
 
 	if ((fd = open(spiDev, O_RDWR)) < 0)
 	{
-		Log(LogLevelError, "wiringPiSPI.c", "wiringPiSPISetupMode", "Unable to open the SPI channel %d in mode %d. Error %d: %s.", channel, mode, fd, strerror(errno));
+		LogFormatted(LogLevelError, "wiringPiSPI.c", "wiringPiSPISetupMode", "Unable to open the SPI channel %d in mode %d. Error %d: %s.", channel, mode, fd, strerror(errno));
 		return fd;
 	}
 
