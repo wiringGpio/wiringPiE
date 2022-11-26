@@ -416,9 +416,9 @@ void scrollPhatIntensity (const int percent)
  *********************************************************************************
  */
 
-int scrollPhatSetup (void)
+int scrollPhatSetup (const int bus)
 {
-  if ((scrollPhatFd = wiringPiI2CSetup (PHAT_I2C_ADDR)) < 0)
+  if ((scrollPhatFd = wiringPiI2CSetup (bus, PHAT_I2C_ADDR)) < 0)
     return scrollPhatFd ;
 
   wiringPiI2CWriteReg8 (scrollPhatFd, 0x00, 0x03) ;	// Enable display, set to 5x11 mode

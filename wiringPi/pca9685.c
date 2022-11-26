@@ -71,9 +71,7 @@ int pca9685Setup(const int bus, const int pinBase, const int i2cAddress, float f
 	}
 
 	// Check i2c address
-	//int fd = wiringPiI2CSetup(bus, i2cAddress);
-	//  TODO bussin
-	int fd = wiringPiI2CSetup( i2cAddress);
+	int fd = wiringPiI2CSetup(bus, i2cAddress);
 	if (fd < 0)
 		return fd;
 	

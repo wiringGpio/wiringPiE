@@ -119,14 +119,14 @@ static int myAnalogRead (struct wiringPiNodeStruct *node, int pin)
  *********************************************************************************
  */
 
-int htu21dSetup (const int pinBase)
+int htu21dSetup (const int bus, const int pinBase)
 {
   int fd ;
   struct wiringPiNodeStruct *node ;
   uint8_t data ;
   int status ;
 
-  if ((fd = wiringPiI2CSetup (I2C_ADDRESS)) < 0)
+  if ((fd = wiringPiI2CSetup (bus, I2C_ADDRESS)) < 0)
     return fd ;
 
   node = wiringPiNewNode (pinBase, 2) ;

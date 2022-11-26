@@ -217,14 +217,14 @@ int wiringPiI2CSetupInterface (const char *device, int devId)
  *********************************************************************************
  */
 
-int wiringPiI2CSetup (const int devId)
+int wiringPiI2CSetup (const int bus, const int devId)
 {
   int rev ;
   const char *device ;
 
   rev = piGpioLayout () ;
 
-  if (rev == 1)
+  if (rev == 1 || bus == 0)
     device = "/dev/i2c-0" ;
   else
     device = "/dev/i2c-1" ;

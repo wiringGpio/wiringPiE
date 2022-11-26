@@ -140,12 +140,12 @@ static int myDigitalRead (struct wiringPiNodeStruct *node, int pin)
  *********************************************************************************
  */
 
-int mcp23016Setup (const int pinBase, const int i2cAddress)
+int mcp23016Setup (const int bus, const int pinBase, const int i2cAddress)
 {
   int fd ;
   struct wiringPiNodeStruct *node ;
 
-  if ((fd = wiringPiI2CSetup (i2cAddress)) < 0)
+  if ((fd = wiringPiI2CSetup (bus, i2cAddress)) < 0)
     return fd ;
 
   wiringPiI2CWriteReg8 (fd, MCP23016_IOCON0, IOCON_INIT) ;

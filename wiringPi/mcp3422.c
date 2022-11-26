@@ -106,12 +106,12 @@ int myAnalogRead (struct wiringPiNodeStruct *node, int chan)
  *********************************************************************************
  */
 
-int mcp3422Setup (int pinBase, int i2cAddress, int sampleRate, int gain)
+int mcp3422Setup (const int bus, const int pinBase, const int i2cAddress, const int sampleRate, const int gain)
 {
   int fd ;
   struct wiringPiNodeStruct *node ;
 
-  if ((fd = wiringPiI2CSetup (i2cAddress)) < 0)
+  if ((fd = wiringPiI2CSetup (bus, i2cAddress)) < 0)
     return fd ;
 
   node = wiringPiNewNode (pinBase, 4) ;

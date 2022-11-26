@@ -192,6 +192,7 @@ static char *extractStr (char *progName, char *p, char **str)
 }
 
 
+#define I2CBUSNUMBER (1)
 
 /*
  * doExtensionMcp23008:
@@ -213,7 +214,7 @@ static int doExtensionMcp23008 (char *progName, int pinBase, char *params)
     return FALSE ;
   }
 
-  mcp23008Setup (pinBase, i2c) ;
+  mcp23008Setup (I2CBUSNUMBER, pinBase, i2c) ;
 
   return TRUE ;
 }
@@ -239,7 +240,7 @@ static int doExtensionMcp23016 (char *progName, int pinBase, char *params)
     return FALSE ;
   }
 
-  mcp23016Setup (pinBase, i2c) ;
+  mcp23016Setup (I2CBUSNUMBER, pinBase, i2c) ;
 
   return TRUE ;
 }
@@ -265,7 +266,7 @@ static int doExtensionMcp23017 (char *progName, int pinBase, char *params)
     return FALSE ;
   }
 
-  mcp23017Setup (pinBase, i2c) ;
+  mcp23017Setup (I2CBUSNUMBER, pinBase, i2c) ;
 
   return TRUE ;
 }
@@ -398,7 +399,7 @@ static int doExtensionPcf8574 (char *progName, int pinBase, char *params)
     return FALSE ;
   }
 
-  pcf8574Setup (pinBase, i2c) ;
+  pcf8574Setup (I2CBUSNUMBER, pinBase, i2c) ;
 
   return TRUE ;
 }
@@ -424,7 +425,7 @@ static int doExtensionAds1115 (char *progName, int pinBase, char *params)
     return FALSE ;
   }
 
-  ads1115Setup (pinBase, i2c) ;
+  ads1115Setup (I2CBUSNUMBER, pinBase, i2c) ;
 
   return TRUE ;
 }
@@ -450,7 +451,7 @@ static int doExtensionPcf8591 (char *progName, int pinBase, char *params)
     return FALSE ;
   }
 
-  pcf8591Setup (pinBase, i2c) ;
+  pcf8591Setup (I2CBUSNUMBER, pinBase, i2c) ;
 
   return TRUE ;
 }
@@ -480,7 +481,7 @@ static int doExtensionPseudoPins (UNU char *progName, int pinBase, UNU char *par
 
 static int doExtensionBmp180 (UNU char *progName, int pinBase, UNU char *params)
 {
-  bmp180Setup (pinBase) ;
+  bmp180Setup (I2CBUSNUMBER, pinBase) ;
 
   return TRUE ;
 }
@@ -495,7 +496,7 @@ static int doExtensionBmp180 (UNU char *progName, int pinBase, UNU char *params)
 
 static int doExtensionHtu21d (UNU char *progName, int pinBase, UNU char *params)
 {
-  htu21dSetup (pinBase) ;
+  htu21dSetup (I2CBUSNUMBER, pinBase) ;
 
   return TRUE ;
 }
@@ -676,7 +677,7 @@ static int doExtensionMcp4802 (char *progName, int pinBase, char *params)
 
 static int doExtensionSn3218 (UNU char *progName, int pinBase, UNU char *params)
 {
-  sn3218Setup (pinBase) ;
+  sn3218Setup (I2CBUSNUMBER, pinBase) ;
   return TRUE ;
 }
 
@@ -719,7 +720,7 @@ static int doExtensionMcp3422 (char *progName, int pinBase, char *params)
     return FALSE ;
   }
 
-  mcp3422Setup (pinBase, i2c, sampleRate, gain) ;
+  mcp3422Setup (I2CBUSNUMBER, pinBase, i2c, sampleRate, gain) ;
 
   return TRUE ;
 }
