@@ -1,33 +1,20 @@
-WiringPi (Unofficial Mirror/Fork)
-=================================
+# WiringPiE 
 
-This is an unofficial mirror/fork of wiringPi to support ports (Python/Ruby/etc).  With the
-[end of official development](http://wiringpi.com/wiringpi-deprecated/), this repository
-has become a mirror of the last "official" source release, plus a fork facilitating updates
-to support newer hardware (primarily for use by the ports) and fix bugs.
 
-  * The final "official" source release can be found at the
-    [`final_source_2.50`](https://github.com/WiringPi/WiringPi/tree/final_official_2.50) tag.
-  * The default `master` branch contains code that has been written since that final source
-    release to provide support for newer hardware.
+This is a fork of the unofficial mirror/fork of the wiringPi library to control GPIO pins on the Raspberry Pi.
 
-Ports
------
+- [wiringPi unofficial mirror on GitHub.](https://github.com/WiringPi)
+- [Gordon Henderson's wiringPi page.](http://wiringpi.com/)
 
-wiringPi has been wrapped for multiple languages:
+This fork of wiringPi has a few modifications from the original:
 
-* Node - https://github.com/WiringPi/WiringPi-Node
-* Perl - https://github.com/WiringPi/WiringPi-Perl
-* PHP - https://github.com/WiringPi/WiringPi-PHP
-* Python - https://github.com/WiringPi/WiringPi-Python
-* Ruby - https://github.com/WiringPi/WiringPi-Ruby
+- Support for devices using the PCA9685 PWM controller, such as the Adafruit motor and servo hats,  is included using Reinhard Sprung's code.
+- A few additional methods are added to support get and set of PWM controller properties
+- All functions that setup an I2C, SPI, or serial port device return the file descriptor on success or -1 for error.
+- A simple logging framework with a callback function is implemented so you monitor and display logs in  your program code.
+- Program error handling is modified; original wiringPi would exit on non fatal errors, now it will log an error message and return NULL or -1 to let the program handle it.
 
-Support
--------
+The goal for creating this modified version of wiringPi is to have code that can run on either Raspberry Pi or NVIDIA Jetson Nano with minimal modification.
 
-Please do not email Gordon if you have issues, he will not be able to help.
 
-Pull-requests may be accepted to add or fix support for newer hardware, but new features or
-other changes may not be accepted.
-
-For support, comments, questions, etc please join the WiringPi Discord channel: https://discord.gg/SM4WUVG
+  
