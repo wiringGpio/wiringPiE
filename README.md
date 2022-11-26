@@ -8,7 +8,7 @@ This is a fork of the unofficial mirror/fork of the wiringPi library to control 
 
 This fork of wiringPi has a few modifications from the original:
 
-- Support for devices using the PCA9685 PWM controller, such as the Adafruit motor and servo hats,  is included using Reinhard Sprung's code.
+- Support for devices using the PCA9685 PWM controller, such as the Adafruit motor and servo hats,  is included using [Reinhard Sprung's code.](https://github.com/Reinbert/pca9685).
 - A few additional methods are added to support get and set of PWM controller properties
 - All functions that setup an I2C, SPI, or serial port device return the file descriptor on success or -1 for error.
 - A simple logging framework with a callback function is implemented so you monitor and display logs in  your program code.
