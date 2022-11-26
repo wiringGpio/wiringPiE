@@ -90,7 +90,7 @@ int wiringPiSPIDataRW(int channel, unsigned char* data, int len)
 	spi.bits_per_word = spiBPW;
 
 	int ret = -1;
-	if ((ret = ioctl(spiFds[channel], SPI_IOC_MESSAGE(1), &spi))
+	if ((ret = ioctl(spiFds[channel], SPI_IOC_MESSAGE(1), &spi)) < 0)
 	{
 		LogFormatted(LogLevelError, "wiringPiSPI.c", "wiringPiSPIDataRW", "Unable to read/write SPI channel %d. Error %d.", channel, ret);
 	}
