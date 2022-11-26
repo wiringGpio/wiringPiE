@@ -31,7 +31,7 @@
 
 #include "wiringGpioLogging.h"
 
-	// Logging Callback
+// Logging Callback
 extern wiringGpioLoggingCallback LogFunction;
 
 //  Log Level
@@ -185,6 +185,8 @@ struct wiringPiNodeStruct
            void   (*digitalWrite)     (struct wiringPiNodeStruct *node, int pin, int value) ;
 //         void   (*digitalWrite8)    (struct wiringPiNodeStruct *node, int pin, int value) ;
            void   (*pwmWrite)         (struct wiringPiNodeStruct *node, int pin, int value) ;
+           void   (*pwmSetFrequency)  (struct wiringPiNodeStruct* node, float frequency);
+           int    (*pwmGetRange)      (struct wiringPiNodeStruct* node, int pin); 
            int    (*analogRead)       (struct wiringPiNodeStruct *node, int pin) ;
            void   (*analogWrite)      (struct wiringPiNodeStruct *node, int pin, int value) ;
 
@@ -217,11 +219,17 @@ extern "C" {
 
 extern int wiringPiFailure (int fatal, const char *message, ...) ;
 
-// Core wiringPi functions
 
+//  wiringPiNodes
 extern struct wiringPiNodeStruct *wiringPiFindNode (int pin) ;
 extern struct wiringPiNodeStruct *wiringPiNewNode  (int pinBase, int numPins) ;
 
+//  wiringPiNode convenience functions
+extern int wiringPiGetPinBaseForNode(int pin);
+extern int wiringPiGetFileDescriptorForNode(int pin);
+
+
+// Core wiringPi functions
 extern void wiringPiVersion	(int *major, int *minor) ;
 extern int  wiringPiSetup       (void) ;
 extern int  wiringPiSetupSys    (void) ;
@@ -233,17 +241,13 @@ extern          void pinMode             (int pin, int mode) ;
 extern          void pullUpDnControl     (int pin, int pud) ;
 extern          int  digitalRead         (int pin) ;
 extern          void digitalWrite        (int pin, int value) ;
-extern unsigned int  digitalRead8        (int pin) ;
-extern          void digitalWrite8       (int pin, int value) ;
+//
+extern			int  pwmSetFrequency     (int pin, float frequency);
 extern          void pwmWrite            (int pin, int value) ;
+extern          void pwmWriteUnit        (int pin, float value);
 extern          int  analogRead          (int pin) ;
 extern          void analogWrite         (int pin, int value) ;
 
-// PiFace specifics
-//	(Deprecated)
-
-extern int  wiringPiSetupPiFace (void) ;
-extern int  wiringPiSetupPiFaceForGpioProg (void) ;	// Don't use this - for gpio program only
 
 // On-Board Raspberry Pi hardware specific stuff
 
@@ -257,6 +261,7 @@ extern          int  getAlt              (int pin) ;
 extern          void pwmToneWrite        (int pin, int freq) ;
 extern          void pwmSetMode          (int mode) ;
 extern          void pwmSetRange         (unsigned int range) ;
+extern          int  pwmGetRange         (int pin);
 extern          void pwmSetClock         (int divisor) ;
 extern          void gpioClockSet        (int pin, int freq) ;
 extern unsigned int  digitalReadByte     (void) ;

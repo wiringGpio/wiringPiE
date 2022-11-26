@@ -1225,6 +1225,28 @@ void pwmSetRange (unsigned int range)
 
 
 /*
+* Get the range of the given pin
+*/
+int pwmGetRange(int pin)
+{
+    if ((pin & PI_GPIO_MASK) == 0)
+    {
+        //  TODO - new function, test this
+        return *(pwm + PWM0_RANGE);
+    }
+    else
+    {
+        struct wiringPiNodeStruct* node = NULL;
+        if ((node = wiringPiFindNode(pin)) != NULL)
+        {
+            return node->pwmGetRange(node, pin);
+        }
+        return 0;
+    }
+}
+
+
+/*
  * pwmSetClock:
  *	Set/Change the PWM clock. Originally my code, but changed
  *	(for the better!) by Chris Hall, <chris@kchall.plus.com>
@@ -1345,6 +1367,8 @@ static         void pullUpDnControlDummy     (UNU struct wiringPiNodeStruct *nod
 static          int digitalReadDummy         (UNU struct wiringPiNodeStruct *node, UNU int UNU pin)            { return LOW ; }
 static         void digitalWriteDummy        (UNU struct wiringPiNodeStruct *node, UNU int pin, UNU int value) { return ; }
 static         void pwmWriteDummy            (UNU struct wiringPiNodeStruct *node, UNU int pin, UNU int value) { return ; }
+static         void pwmSetFrequencyDummy     (UNU struct wiringPiNodeStruct* node, UNU float value) { return; }
+static			int pwmGetRangeDummy         (UNU struct wiringPiNodeStruct* node, UNU int pin) { return 0; }
 static          int analogReadDummy          (UNU struct wiringPiNodeStruct *node, UNU int pin)            { return 0 ; }
 static         void analogWriteDummy         (UNU struct wiringPiNodeStruct *node, UNU int pin, UNU int value) { return ; }
 
@@ -1377,6 +1401,8 @@ struct wiringPiNodeStruct *wiringPiNewNode (int pinBase, int numPins)
   node->digitalWrite     = digitalWriteDummy ;
 //node->digitalWrite8    = digitalWrite8Dummy ;
   node->pwmWrite         = pwmWriteDummy ;
+  node->pwmSetFrequency  = pwmSetFrequencyDummy;
+  node->pwmGetRange      = pwmGetRangeDummy;
   node->analogRead       = analogReadDummy ;
   node->analogWrite      = analogWriteDummy ;
   node->next             = wiringPiNodes ;
@@ -1385,6 +1411,34 @@ struct wiringPiNodeStruct *wiringPiNewNode (int pinBase, int numPins)
   return node ;
 }
 
+
+/*
+* Node convenience functions
+*/ 
+
+/* 
+* Find the pin base for the node containing the given pin number
+*/
+int wiringPiGetPinBaseForNode(int pin)
+{
+    struct wiringPiNodeStruct* nodeExists = wiringPiFindNode(pin);
+    if (nodeExists != NULL)
+        return nodeExists->pinBase;
+    else
+        return -1;
+}
+
+/*
+* Get the file descriptor for the node containing the given number
+*/
+extern int wiringPiGetFileDescriptorForNode(int pin)
+{
+    struct wiringPiNodeStruct* nodeExists = wiringPiFindNode(pin);
+    if (nodeExists != NULL)
+        return nodeExists->fd;
+    else
+        return -1;
+}
 
 #ifdef notYetReady
 /*
@@ -1686,23 +1740,28 @@ void digitalWrite (int pin, int value)
 
 
 /*
- * digitalWrite8:
- *	Set an output 8-bit byte on the device from the given pin number
- *********************************************************************************
-
-void digitalWrite8 (int pin, int value)
+* PWM Set Frequency
+*/  
+int pwmSetFrequency(int pin, float frequency)
 {
-  struct wiringPiNodeStruct *node = wiringPiNodes ;
+    LogFormatted(LogLevelInfo, "wiringPi.c", "pwmSetFrequency", "Setting PWM frequency for pin %d to %.1f", pin, frequency);
 
-  if ((pin & PI_GPIO_MASK) == 0)		// On-Board Pin
-    return ;
-  else
-  {
-    if ((node = wiringPiFindNode (pin)) != NULL)
-      node->digitalWrite8 (node, pin, value) ;
-  }
+    if ((pin & PI_GPIO_MASK) == 0)
+    {
+        //  TODO can this be done on the pi ?
+        //  return gpioSetPWMfrequency(pin, frequency);
+        return -1;
+    }
+    else
+    {
+        struct wiringPiNodeStruct* node = NULL;
+        if ((node = wiringPiFindNode(pin)) != NULL)
+        {
+            node->pwmSetFrequency(node, frequency);
+        }
+        return 0;
+    }
 }
- */
 
 
 /*
@@ -1734,6 +1793,30 @@ void pwmWrite (int pin, int value)
     if ((node = wiringPiFindNode (pin)) != NULL)
       node->pwmWrite (node, pin, value) ;
   }
+}
+
+
+/*
+ * pwmWriteUnit:
+ *	Set an output PWM value as a unit number:  0.0 = off, 1.0 = full on
+ *********************************************************************************
+ */
+void pwmWriteUnit(int pin, float value)
+{
+    //  TODO - new function
+    int rangeValue = pwmGetRange(pin) * value;
+    if ((pin & PI_GPIO_MASK) == 0)
+    {
+        pwmWrite(pin, rangeValue);
+    }
+    else
+    {
+        struct wiringPiNodeStruct* node = NULL;
+        if ((node = wiringPiFindNode(pin)) != NULL)
+        {
+            node->pwmWrite(node, pin, rangeValue);
+        }
+    }
 }
 
 
