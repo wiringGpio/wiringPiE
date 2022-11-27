@@ -37,12 +37,20 @@ extern wiringGpioLoggingCallback LogFunction;
 //  Log Level
 extern wiringGpioLogLevel LoggingLevel;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern void wiringPiSetLoggingCallback(wiringGpioLoggingCallback);
 extern void wiringPiSetLoggingLevel(wiringGpioLogLevel level);
 
 //  Log functions
-void Log(wiringGpioLogLevel level, const char* sender, const char* function, const char* data);
-void LogFormatted(wiringGpioLogLevel level, const char* sender, const char* function, const char* format, ...);
+#ifdef __cplusplus
+}
+#endif
+
+    void Log(wiringGpioLogLevel level, const char* sender, const char* function, const char* data);
+    void LogFormatted(wiringGpioLogLevel level, const char* sender, const char* function, const char* format, ...);
 
 
 
