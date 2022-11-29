@@ -243,6 +243,7 @@ extern int  wiringPiSetup       (void) ;
 extern int  wiringPiSetupSys    (void) ;
 extern int  wiringPiSetupGpio   (void) ;
 extern int  wiringPiSetupPhys   (void) ;
+extern void wiringPiTerminate   (void) ;
 
 extern          void pinModeAlt          (int pin, int mode) ;
 extern          void pinMode             (int pin, int mode) ;
@@ -250,7 +251,6 @@ extern          void pullUpDnControl     (int pin, int pud) ;
 extern          int  digitalRead         (int pin) ;
 extern          void digitalWrite        (int pin, int value) ;
 //
-extern			int  pwmSetFrequency     (int pin, float frequency);
 extern          void pwmWrite            (int pin, int value) ;
 extern          void pwmWriteUnit        (int pin, float value);
 extern          int  analogRead          (int pin) ;
@@ -271,6 +271,7 @@ extern          void pwmSetMode          (int mode) ;
 extern          void pwmSetRange         (unsigned int range) ;
 extern          int  pwmGetRange         (int pin);
 extern          void pwmSetClock         (int divisor) ;
+extern			int  pwmSetFrequency(int pin, float frequency);
 extern          void gpioClockSet        (int pin, int freq) ;
 extern unsigned int  digitalReadByte     (void) ;
 extern unsigned int  digitalReadByte2    (void) ;

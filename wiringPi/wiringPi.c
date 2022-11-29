@@ -2610,3 +2610,10 @@ int wiringPiSetupSys(void)
 
 	return 0;
 }
+
+
+//  TODO - terminate function
+void wiringPiTerminate(void)
+{
+
+}
