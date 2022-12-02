@@ -24,35 +24,7 @@
 #ifndef	__WIRING_PI_H__
 #define	__WIRING_PI_H__
 
-
- //  Logging
- //
-
-
 #include "wiringGpioLogging.h"
-
-// Logging Callback
-extern wiringGpioLoggingCallback LogFunction;
-
-//  Log Level
-extern wiringGpioLogLevel LoggingLevel;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-extern void wiringPiSetLoggingCallback(wiringGpioLoggingCallback);
-extern void wiringPiSetLoggingLevel(wiringGpioLogLevel level);
-
-//  Log functions
-#ifdef __cplusplus
-}
-#endif
-
-    void Log(wiringGpioLogLevel level, const char* sender, const char* function, const char* data);
-    void LogFormatted(wiringGpioLogLevel level, const char* sender, const char* function, const char* format, ...);
-
-
 
 
 // C doesn't have true/false by default and I can never remember which
@@ -204,7 +176,6 @@ struct wiringPiNodeStruct
 extern struct wiringPiNodeStruct *wiringPiNodes ;
 
 // Export variables for the hardware pointers
-
 extern volatile unsigned int *_wiringPiGpio ;
 extern volatile unsigned int *_wiringPiPwm ;
 extern volatile unsigned int *_wiringPiClk ;
@@ -214,23 +185,29 @@ extern volatile unsigned int *_wiringPiTimerIrqRaw ;
 
 
 // Function prototypes
-//	c++ wrappers thanks to a comment by Nick Lott
-//	(and others on the Raspberry Pi forums)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Data
+//  Logging
+extern wiringGpioLoggingCallback LogFunction;
+extern wiringGpioLogLevel LoggingLevel;
+extern void wiringPiSetLoggingCallback(wiringGpioLoggingCallback);
+extern void wiringPiSetLoggingLevel(wiringGpioLogLevel level);
+//
+void Log(wiringGpioLogLevel level, const char* sender, const char* function, const char* data);
+void LogFormatted(wiringGpioLogLevel level, const char* sender, const char* function, const char* format, ...);
+
 
 // Internal
-
 extern int wiringPiFailure (int fatal, const char *message, ...) ;
 
 
 //  wiringPiNodes
 extern struct wiringPiNodeStruct *wiringPiFindNode (int pin) ;
 extern struct wiringPiNodeStruct *wiringPiNewNode  (int pinBase, int numPins) ;
+
 
 //  wiringPiNode convenience functions
 extern int wiringPiGetPinBaseForNode(int pin);
@@ -244,7 +221,7 @@ extern int  wiringPiSetupSys    (void) ;
 extern int  wiringPiSetupGpio   (void) ;
 extern int  wiringPiSetupPhys   (void) ;
 extern void wiringPiTerminate   (void) ;
-
+//
 extern          void pinModeAlt          (int pin, int mode) ;
 extern          void pinMode             (int pin, int mode) ;
 extern          void pullUpDnControl     (int pin, int pud) ;
@@ -258,7 +235,6 @@ extern          void analogWrite         (int pin, int value) ;
 
 
 // On-Board Raspberry Pi hardware specific stuff
-
 extern          int  piGpioLayout        (void) ;
 extern          int  piBoardRev          (void) ;	// Deprecated
 extern          void piBoardId           (int *model, int *rev, int *mem, int *maker, int *overVolted) ;
@@ -279,23 +255,18 @@ extern          void digitalWriteByte    (int value) ;
 extern          void digitalWriteByte2   (int value) ;
 
 // Interrupts
-//	(Also Pi hardware specific)
-
 extern int  waitForInterrupt    (int pin, int mS) ;
 extern int  wiringPiISR         (int pin, int mode, void (*function)(void)) ;
 
 // Threads
-
 extern int  piThreadCreate      (void *(*fn)(void *)) ;
 extern void piLock              (int key) ;
 extern void piUnlock            (int key) ;
 
 // Schedulling priority
-
 extern int piHiPri (const int pri) ;
 
 // Extras from arduino land
-
 extern void         delay             (unsigned int howLong) ;
 extern void         delayMicroseconds (unsigned int howLong) ;
 extern unsigned int millis            (void) ;
