@@ -29,12 +29,12 @@
 #include "wiringPi.h"
 #include "softPwm.h"
 
-// MAX_PINS:
-//	This is more than the number of Pi pins because we can actually softPwm.
-//	Once upon a time I let pins on gpio expanders be softPwm'd, but it's really
-//	really not a good thing.
+ // MAX_PINS:
+ //	This is more than the number of Pi pins because we can actually softPwm
+ //	pins that are on GPIO expanders. It's not that efficient and more than 1 or
+ //	2 pins on e.g. (SPI) mcp23s17 won't really be that effective, however...
 
-#define	MAX_PINS	64
+#define	MAX_PINS	1024
 
 // The PWM Frequency is derived from the "pulse time" below. Essentially,
 //	the frequency is a function of the range and this pulse time.

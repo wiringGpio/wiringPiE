@@ -2552,6 +2552,8 @@ int wiringPiSetupPhys(void)
 
 	wiringPiMode = WPI_MODE_PHYS;
 
+	Log(LogLevelInfo, "wiringPi.c", "wiringPiSetupPhys", "wiringPi setup with physical pin numbers.");
+
 	return 0;
 }
 
