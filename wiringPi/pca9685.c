@@ -48,6 +48,8 @@ static void myOnOffWrite(struct wiringPiNodeStruct *node, int pin, int value);
 static int myOffRead(struct wiringPiNodeStruct *node, int pin);
 static int myOnRead(struct wiringPiNodeStruct *node, int pin);
 static void myPwmSetFrequency(struct wiringPiNodeStruct* node, float value);
+static float myPwmGetFrequency(struct wiringJetNodeStruct* node);
+static int myIsHardwarePwm(struct wiringJetNodeStruct* node, int pin);
 static int myPwmGetRange(struct wiringPiNodeStruct* node, int pin);
 
 int baseReg(int pin);
@@ -94,6 +96,8 @@ int pca9685Setup(const int bus, const int pinBase, const int i2cAddress, float f
 	node->digitalRead		= myOffRead;
 	node->analogRead		= myOnRead;
 	node->pwmSetFrequency	= myPwmSetFrequency;
+	node->pwmGetFrequency   = myPwmGetFrequency;
+	node->isHardwarePwm		= myIsHardwarePwm;
 	node->pwmGetRange		= myPwmGetRange;
 
 	return fd;
@@ -301,13 +305,31 @@ static int myOnRead(struct wiringPiNodeStruct *node, int pin)
 }
 
 /**
- * Set the frequency of a pin
+ * Set the frequency of the chip
  */
 static void myPwmSetFrequency(struct wiringPiNodeStruct *node, float value) 
 {
-	int fd = node->fd;
-	
-	pca9685PWMFreq(fd, value);
+	pca9685PWMFreq(node->fd, value);
+	//  cahce the frequency value in data3
+	node->data3 = (unsigned int)(value * 1000.0);
+}
+
+/**
+ * Get the frequency of the chip
+ */
+static float myPwmGetFrequency(struct wiringJetNodeStruct* node)
+{
+	//  frequency value is stored in data3
+	return (float)(node->data3 / 1000);
+}
+
+
+/**
+ * Identify as hardware PWM
+ */
+static int myIsHardwarePwm(struct wiringJetNodeStruct* node, int pin)
+{
+	return 1;
 }
 
 

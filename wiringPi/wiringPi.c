@@ -1247,6 +1247,37 @@ int pwmGetRange(int pin)
 
 
 /*
+* Identify a hardware PWM pin
+*/
+int pwmIsHardwarePwmPin(int pin)
+{
+	if ((pin & PI_GPIO_MASK) == 0)		// On-board pin
+	{
+		/**/ if (wiringPiMode == WPI_MODE_PINS)
+			pin = pinToGpio[pin];
+		else if (wiringPiMode == WPI_MODE_PHYS)
+			pin = physToGpio[pin];
+		else if (wiringPiMode != WPI_MODE_GPIO)
+			return 0;
+
+		return (pin == 18);
+	}
+	else
+	{
+		struct wiringPiNodeStruct* node = NULL;
+		if ((node = wiringPiFindNode(pin)) != NULL)
+		{
+			return node->isHardwarePwm(node);
+		}
+		return 0;
+	}
+}
+
+
+
+
+
+/*
  * pwmSetClock:
  *	Set/Change the PWM clock. Originally my code, but changed
  *	(for the better!) by Chris Hall, <chris@kchall.plus.com>
@@ -1368,7 +1399,9 @@ static          int digitalReadDummy(UNU struct wiringPiNodeStruct* node, UNU in
 static         void digitalWriteDummy(UNU struct wiringPiNodeStruct* node, UNU int pin, UNU int value) { return; }
 static         void pwmWriteDummy(UNU struct wiringPiNodeStruct* node, UNU int pin, UNU int value) { return; }
 static         void pwmSetFrequencyDummy(UNU struct wiringPiNodeStruct* node, UNU float value) { return; }
+static		  float pwmGetFrequencyDummy(UNU struct wiringPiNodeStruct* node) { return 0.0; }
 static			int pwmGetRangeDummy(UNU struct wiringPiNodeStruct* node, UNU int pin) { return 0; }
+static			int isHardwarePwmDummy(UNU struct wiringJetNodeStruct* node, UNU int pin) { return 0; }
 static          int analogReadDummy(UNU struct wiringPiNodeStruct* node, UNU int pin) { return 0; }
 static         void analogWriteDummy(UNU struct wiringPiNodeStruct* node, UNU int pin, UNU int value) { return; }
 
@@ -1411,7 +1444,9 @@ struct wiringPiNodeStruct* wiringPiNewNode(int pinBase, int numPins)
 	//node->digitalWrite8    = digitalWrite8Dummy ;
 	node->pwmWrite = pwmWriteDummy;
 	node->pwmSetFrequency = pwmSetFrequencyDummy;
+	node->pwmGetFrequency = pwmGetFrequencyDummy;
 	node->pwmGetRange = pwmGetRangeDummy;
+	node->isHardwarePwm = isHardwarePwmDummy;
 	node->analogRead = analogReadDummy;
 	node->analogWrite = analogWriteDummy;
 	node->next = wiringPiNodes;
@@ -1583,6 +1618,7 @@ void pinMode(int pin, int mode)
 }
 
 
+
 /*
  * pullUpDownCtrl:
  *	Control the internal pull-up/down resistors on a GPIO pin.
@@ -1686,27 +1722,6 @@ int digitalRead(int pin)
 }
 
 
-/*
- * digitalRead8:
- *	Read 8-bits (a byte) from given start pin.
- *********************************************************************************
-
-unsigned int digitalRead8 (int pin)
-{
-  struct wiringPiNodeStruct *node = wiringPiNodes ;
-
-  if ((pin & PI_GPIO_MASK) == 0)		// On-Board Pin
-	return 0 ;
-  else
-  {
-	if ((node = wiringPiFindNode (pin)) == NULL)
-	  return LOW ;
-	return node->digitalRead8 (node, pin) ;
-  }
-}
- */
-
-
  /*
   * digitalWrite:
   *	Set an output bit
@@ -1759,8 +1774,9 @@ int pwmSetFrequency(int pin, float frequency)
 
 	if ((pin & PI_GPIO_MASK) == 0)
 	{
-		//  TODO can this be done on the pi ?
+		//  TODO how to do this on the pi
 		//  return gpioSetPWMfrequency(pin, frequency);
+		Log(LogLevelFatal, "wiringPi.c", "pwmSetFrequency", "Not implemented on Raspberry Pi");
 		return -1;
 	}
 	else
@@ -1769,6 +1785,34 @@ int pwmSetFrequency(int pin, float frequency)
 		if ((node = wiringPiFindNode(pin)) != NULL)
 		{
 			node->pwmSetFrequency(node, frequency);
+		}
+		return 0;
+	}
+}
+
+
+/*
+* PWM Get Frequency
+*/
+float pwmGetFrequency(int pin)
+{
+	if ((pin & PI_GPIO_MASK) == 0)
+	{
+		switch (pin)
+		{
+		case 12:	//  TODO - pin number format
+			return pwmFrequency0;
+		default:
+			LogFormatted(LogLevelError, "wiringPi.c", "pwmGetFrequency", "Pin %d is not a hardware PWM pin", pin);
+			return 0;
+		}
+	}
+	else
+	{
+		struct wiringJetNodeStruct* node = NULL;
+		if ((node = wiringJetFindNode(pin)) != NULL)
+		{
+			node->pwmGetFrequency(node);
 		}
 		return 0;
 	}

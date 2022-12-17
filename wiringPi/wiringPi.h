@@ -166,7 +166,9 @@ struct wiringPiNodeStruct
 //         void   (*digitalWrite8)    (struct wiringPiNodeStruct *node, int pin, int value) ;
            void   (*pwmWrite)         (struct wiringPiNodeStruct *node, int pin, int value) ;
            void   (*pwmSetFrequency)  (struct wiringPiNodeStruct* node, float frequency);
+           float  (*pwmGetFrequency)  (struct wiringJetNodeStruct* node);
            int    (*pwmGetRange)      (struct wiringPiNodeStruct* node, int pin); 
+           int    (*isHardwarePwm)    (struct wiringJetNodeStruct* node, int pin);
            int    (*analogRead)       (struct wiringPiNodeStruct *node, int pin) ;
            void   (*analogWrite)      (struct wiringPiNodeStruct *node, int pin, int value) ;
 
@@ -248,6 +250,8 @@ extern          void pwmSetRange         (unsigned int range) ;
 extern          int  pwmGetRange         (int pin);
 extern          void pwmSetClock         (int divisor) ;
 extern			int  pwmSetFrequency(int pin, float frequency);
+extern          float pwmGetFrequency(int pin);
+extern			int  pwmIsHardwarePwmPin(int pin);
 extern          void gpioClockSet        (int pin, int freq) ;
 extern unsigned int  digitalReadByte     (void) ;
 extern unsigned int  digitalReadByte2    (void) ;

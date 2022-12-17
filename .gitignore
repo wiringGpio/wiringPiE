@@ -7,3 +7,4 @@ debian-template/wiringpi-*.deb
 gpio/gpio
 
 .vs/
+*.DS_Store
