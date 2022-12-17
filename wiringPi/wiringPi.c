@@ -1401,7 +1401,7 @@ static         void pwmWriteDummy(UNU struct wiringPiNodeStruct* node, UNU int p
 static         void pwmSetFrequencyDummy(UNU struct wiringPiNodeStruct* node, UNU float value) { return; }
 static		  float pwmGetFrequencyDummy(UNU struct wiringPiNodeStruct* node) { return 0.0; }
 static			int pwmGetRangeDummy(UNU struct wiringPiNodeStruct* node, UNU int pin) { return 0; }
-static			int isHardwarePwmDummy(UNU struct wiringJetNodeStruct* node, UNU int pin) { return 0; }
+static			int isHardwarePwmDummy(UNU struct wiringPiNodeStruct* node, UNU int pin) { return 0; }
 static          int analogReadDummy(UNU struct wiringPiNodeStruct* node, UNU int pin) { return 0; }
 static         void analogWriteDummy(UNU struct wiringPiNodeStruct* node, UNU int pin, UNU int value) { return; }
 
@@ -1809,8 +1809,8 @@ float pwmGetFrequency(int pin)
 	}
 	else
 	{
-		struct wiringJetNodeStruct* node = NULL;
-		if ((node = wiringJetFindNode(pin)) != NULL)
+		struct wiringPiNodeStruct* node = NULL;
+		if ((node = wiringPiFindNode(pin)) != NULL)
 		{
 			node->pwmGetFrequency(node);
 		}

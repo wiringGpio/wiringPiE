@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * wiringJet pca9685.h, copied from
+ * wiringPiE pca9685.h, copied from
  * https://github.com/Reinbert/pca9685
  * 
  * pca9685.h

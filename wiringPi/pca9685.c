@@ -48,8 +48,8 @@ static void myOnOffWrite(struct wiringPiNodeStruct *node, int pin, int value);
 static int myOffRead(struct wiringPiNodeStruct *node, int pin);
 static int myOnRead(struct wiringPiNodeStruct *node, int pin);
 static void myPwmSetFrequency(struct wiringPiNodeStruct* node, float value);
-static float myPwmGetFrequency(struct wiringJetNodeStruct* node);
-static int myIsHardwarePwm(struct wiringJetNodeStruct* node, int pin);
+static float myPwmGetFrequency(struct wiringPiNodeStruct* node);
+static int myIsHardwarePwm(struct wiringPiNodeStruct* node, int pin);
 static int myPwmGetRange(struct wiringPiNodeStruct* node, int pin);
 
 int baseReg(int pin);
@@ -317,7 +317,7 @@ static void myPwmSetFrequency(struct wiringPiNodeStruct *node, float value)
 /**
  * Get the frequency of the chip
  */
-static float myPwmGetFrequency(struct wiringJetNodeStruct* node)
+static float myPwmGetFrequency(struct wiringPiNodeStruct* node)
 {
 	//  frequency value is stored in data3
 	return (float)(node->data3 / 1000);
@@ -327,7 +327,7 @@ static float myPwmGetFrequency(struct wiringJetNodeStruct* node)
 /**
  * Identify as hardware PWM
  */
-static int myIsHardwarePwm(struct wiringJetNodeStruct* node, int pin)
+static int myIsHardwarePwm(struct wiringPiNodeStruct* node, int pin)
 {
 	return 1;
 }

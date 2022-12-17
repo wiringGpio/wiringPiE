@@ -166,9 +166,9 @@ struct wiringPiNodeStruct
 //         void   (*digitalWrite8)    (struct wiringPiNodeStruct *node, int pin, int value) ;
            void   (*pwmWrite)         (struct wiringPiNodeStruct *node, int pin, int value) ;
            void   (*pwmSetFrequency)  (struct wiringPiNodeStruct* node, float frequency);
-           float  (*pwmGetFrequency)  (struct wiringJetNodeStruct* node);
+           float  (*pwmGetFrequency)  (struct wiringPiNodeStruct* node);
            int    (*pwmGetRange)      (struct wiringPiNodeStruct* node, int pin); 
-           int    (*isHardwarePwm)    (struct wiringJetNodeStruct* node, int pin);
+           int    (*isHardwarePwm)    (struct wiringPiNodeStruct* node, int pin);
            int    (*analogRead)       (struct wiringPiNodeStruct *node, int pin) ;
            void   (*analogWrite)      (struct wiringPiNodeStruct *node, int pin, int value) ;
 
