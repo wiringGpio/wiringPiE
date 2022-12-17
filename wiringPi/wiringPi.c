@@ -1267,7 +1267,7 @@ int pwmIsHardwarePwmPin(int pin)
 		struct wiringPiNodeStruct* node = NULL;
 		if ((node = wiringPiFindNode(pin)) != NULL)
 		{
-			return node->isHardwarePwm(node);
+			return node->isHardwarePwm(node, pin);
 		}
 		return 0;
 	}
