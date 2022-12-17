@@ -1765,6 +1765,8 @@ void digitalWrite(int pin, int value)
 }
 
 
+float pwmFrequency0 = 0;
+
 /*
 * PWM Set Frequency
 */
@@ -1777,6 +1779,7 @@ int pwmSetFrequency(int pin, float frequency)
 		//  TODO how to do this on the pi
 		//  return gpioSetPWMfrequency(pin, frequency);
 		Log(LogLevelFatal, "wiringPi.c", "pwmSetFrequency", "Not implemented on Raspberry Pi");
+		pwmFrequency0 = frequency;
 		return -1;
 	}
 	else
