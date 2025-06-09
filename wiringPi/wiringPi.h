@@ -49,25 +49,34 @@
 
 // wiringPi modes
 
-#define	WPI_MODE_PINS		 0
-#define	WPI_MODE_GPIO		 1
-#define	WPI_MODE_GPIO_SYS	 2
-#define	WPI_MODE_PHYS		 3
-#define	WPI_MODE_PIFACE		 4
-#define	WPI_MODE_UNINITIALISED	-1
+#define	WPI_MODE_PINS		          0
+#define	WPI_MODE_GPIO		          1
+#define	WPI_MODE_GPIO_SYS	        2
+#define	WPI_MODE_PHYS		          3
+#define	WPI_MODE_PIFACE		        4
+/***  Added for Pi 5 Updates @b2af17e */
+#define	WPI_MODE_GPIO_DEVICE_BCM  5  // BCM pin numbers like WPI_MODE_GPIO
+#define	WPI_MODE_GPIO_DEVICE_WPI  6  // WiringPi pin numbers like WPI_MODE_PINS
+#define	WPI_MODE_GPIO_DEVICE_PHYS 7  // Physic pin numbers like WPI_MODE_PHYS
+/***/
+#define	WPI_MODE_UNINITIALISED	  -1
 
 // Pin modes
-
-#define	INPUT			 0
-#define	OUTPUT			 1
-#define	PWM_OUTPUT		 2
-#define	GPIO_CLOCK		 3
+#define	INPUT			         0
+#define	OUTPUT			       1
+#define	PWM_OUTPUT		     2
+/***  Added for Pi 5 Updates @b2af17e */
+#define	PWM_MS_OUTPUT	     8
+#define	PWM_BAL_OUTPUT     9
+/***/
+#define	GPIO_CLOCK		     3
 #define	SOFT_PWM_OUTPUT		 4
 #define	SOFT_TONE_OUTPUT	 5
 #define	PWM_TONE_OUTPUT		 6
+#define	PM_OFF		         7   // to input / release line
 
-#define	LOW			 0
-#define	HIGH			 1
+#define	LOW	    0
+#define	HIGH	  1
 
 // Pull up/down/none
 
@@ -77,7 +86,7 @@
 
 // PWM
 
-#define	PWM_MODE_MS		0
+#define	PWM_MODE_MS		  0
 #define	PWM_MODE_BAL		1
 
 // Interrupt levels
@@ -85,43 +94,60 @@
 #define	INT_EDGE_SETUP		0
 #define	INT_EDGE_FALLING	1
 #define	INT_EDGE_RISING		2
-#define	INT_EDGE_BOTH		3
+#define	INT_EDGE_BOTH		  3
 
 // Pi model types and version numbers
 //	Intended for the GPIO program Use at your own risk.
 // https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#new-style-revision-codes
 
-#define	PI_MODEL_A		 0
-#define	PI_MODEL_B		 1
-#define	PI_MODEL_AP		 2
-#define	PI_MODEL_BP		 3
-#define	PI_MODEL_2		 4
-#define	PI_ALPHA		 5
-#define	PI_MODEL_CM		 6
-#define	PI_MODEL_07		 7
-#define	PI_MODEL_3B		 8
-#define	PI_MODEL_ZERO		 9
-#define	PI_MODEL_CM3		10
-#define	PI_MODEL_ZERO_W		12
-#define	PI_MODEL_3BP 		13
-#define	PI_MODEL_3AP 		14
-#define	PI_MODEL_CM3P 		16
-#define	PI_MODEL_4B 		17
-#define	PI_MODEL_ZERO_2W	18
-#define	PI_MODEL_400		19
-#define	PI_MODEL_CM4		20
+#define	PI_MODEL_A		    0
+#define	PI_MODEL_B		    1
+#define	PI_MODEL_AP		    2
+#define	PI_MODEL_BP		    3
+#define	PI_MODEL_2		    4
+#define	PI_ALPHA		      5
+#define	PI_MODEL_CM		    6
 
-#define	PI_VERSION_1		0
+#define	PI_MODEL_3B		    8
+#define	PI_MODEL_ZERO		  9
+#define	PI_MODEL_CM3		 10
+
+#define	PI_MODEL_ZERO_W	 12
+#define	PI_MODEL_3BP 		 13
+#define	PI_MODEL_3AP 		 14
+
+#define	PI_MODEL_CM3P 	 16
+#define	PI_MODEL_4B 		 17
+#define	PI_MODEL_ZERO_2W 18
+#define	PI_MODEL_400		 19
+#define	PI_MODEL_CM4		 20
+/***  Added for Pi 5 Updates @b2af17e */
+#define	PI_MODEL_CM4S		 21
+#define	PI_MODEL_5		   23
+#define	PI_MODEL_CM5	   24
+#define	PI_MODEL_500	   25
+#define	PI_MODEL_CM5L	   26
+#define PI_MODELS_MAX    27
+/***/
+
+
+#define	PI_VERSION_1		  0
 #define	PI_VERSION_1_1		1
 #define	PI_VERSION_1_2		2
-#define	PI_VERSION_2		3
+#define	PI_VERSION_2		  3
 
-#define	PI_MAKER_SONY		0
+#define	PI_MAKER_SONY		  0
 #define	PI_MAKER_EGOMAN		1
 #define	PI_MAKER_EMBEST		2
 #define	PI_MAKER_UNKNOWN	3
 
-extern const char *piModelNames    [21] ;
+/***  Added for Pi 5 Updates @b2af17e */
+#define GPIO_LAYOUT_PI1_REV1 1   //Pi 1 A/B Revision 1, 1.1, CM
+#define GPIO_LAYOUT_DEFAULT  2
+
+extern const char *piProcessor     [ 5] ;
+extern const char *piModelNames    [PI_MODELS_MAX] ;
+/***/
 extern const char *piRevisionNames [16] ;
 extern const char *piMakerNames    [16] ;
 extern const int   piMemorySize    [ 8] ;
@@ -161,9 +187,7 @@ struct wiringPiNodeStruct
            void   (*pinMode)          (struct wiringPiNodeStruct *node, int pin, int mode) ;
            void   (*pullUpDnControl)  (struct wiringPiNodeStruct *node, int pin, int mode) ;
            int    (*digitalRead)      (struct wiringPiNodeStruct *node, int pin) ;
-//unsigned int    (*digitalRead8)     (struct wiringPiNodeStruct *node, int pin) ;
            void   (*digitalWrite)     (struct wiringPiNodeStruct *node, int pin, int value) ;
-//         void   (*digitalWrite8)    (struct wiringPiNodeStruct *node, int pin, int value) ;
            void   (*pwmWrite)         (struct wiringPiNodeStruct *node, int pin, int value) ;
            void   (*pwmSetFrequency)  (struct wiringPiNodeStruct* node, float frequency);
            float  (*pwmGetFrequency)  (struct wiringPiNodeStruct* node);
@@ -203,6 +227,7 @@ void LogFormatted(wiringGpioLogLevel level, const char* sender, const char* func
 
 
 // Internal
+extern void piGpioLayoutOops (const char *why);  /***  Added for Pi 5 Updates @b2af17e */
 extern int wiringPiFailure (int fatal, const char *message, ...) ;
 
 
@@ -210,12 +235,37 @@ extern int wiringPiFailure (int fatal, const char *message, ...) ;
 extern struct wiringPiNodeStruct *wiringPiFindNode (int pin) ;
 extern struct wiringPiNodeStruct *wiringPiNewNode  (int pinBase, int numPins) ;
 
-
 //  wiringPiNode convenience functions
 extern int wiringPiGetPinBaseForNode(int pin);
 extern int wiringPiGetFileDescriptorForNode(int pin);
 
+/***  Added for Pi 5 Updates @b2af17e */
 
+//  Pi 5 enum
+enum WPIPinType {
+  WPI_PIN_BCM = 1,
+  WPI_PIN_WPI,
+  WPI_PIN_PHYS,
+};
+
+//  Pi 5 enum
+enum WPIPinAlt {
+  WPI_ALT_UNKNOWN = -1,
+  WPI_ALT_INPUT = 0,
+  WPI_ALT_OUTPUT,
+  WPI_ALT5,
+  WPI_ALT4,
+  WPI_ALT0,
+  WPI_ALT1,
+  WPI_ALT2,
+  WPI_ALT3,
+  WPI_ALT6,
+  WPI_ALT7,
+  WPI_ALT8,
+  WPI_ALT9,
+  WPI_NONE = 0x1F,  // Pi5 default
+};
+/***/
 // Core wiringPi functions
 extern void wiringPiVersion	(int *major, int *minor) ;
 extern int  wiringPiSetup       (void) ;
@@ -223,7 +273,12 @@ extern int  wiringPiSetupSys    (void) ;
 extern int  wiringPiSetupGpio   (void) ;
 extern int  wiringPiSetupPhys   (void) ;
 extern void wiringPiTerminate   (void) ;
-//
+/***  Added for Pi 5 Updates @b2af17e */
+extern          int  wiringPiGpioDeviceGetFd();               //Interface V3.3
+extern int  wiringPiGlobalMemoryAccess(void);                 //Interface V3.3
+extern int  wiringPiUserLevelAccess (void) ;
+/***/
+
 extern          void pinModeAlt          (int pin, int mode) ;
 extern          void pinMode             (int pin, int mode) ;
 extern          void pullUpDnControl     (int pin, int pud) ;
@@ -258,9 +313,32 @@ extern unsigned int  digitalReadByte2    (void) ;
 extern          void digitalWriteByte    (int value) ;
 extern          void digitalWriteByte2   (int value) ;
 
+/***  Added for Pi 5 Updates @b2af17e */
+extern          int  piBoard40Pin        (void) ;                   // Interface V3.7
+extern          int  piRP1Model          (void) ;                   // Interface V3.14extern          int  wpiPinToGpio        (int wpiPin) ;
+extern          void setPadDrivePin      (int pin, int value);     // Interface V3.0
+/***/
+
+
 // Interrupts
 extern int  waitForInterrupt    (int pin, int mS) ;
 extern int  wiringPiISR         (int pin, int mode, void (*function)(void)) ;
+
+/***  Added for Pi 5 Updates @b2af17e */
+// status returned from waitForInterruptV2    V3.16
+struct WPIWfiStatus {
+    int statusOK;               // -1: error (return of 'poll' command), 0: timeout, 1: irq processed, next data values are valid if needed
+    unsigned int pinBCM;        // gpio as BCM pin
+    int edge;                   // INT_EDGE_FALLING or INT_EDGE_RISING
+    long long int timeStamp_us; // time stamp in microseconds
+};
+
+//  Interrupts v2
+extern struct WPIWfiStatus  waitForInterrupt2(int pin, int edgeMode, int ms, unsigned long debounce_period_us) ;   // V3.16
+extern int  wiringPiISR2       (int pin, int edgeMode, void (*function)(struct WPIWfiStatus wfiStatus, void* userdata), unsigned long debounce_period_us, void* userdata) ;  // V3.16
+extern int  wiringPiISRStop     (int pin) ;  //V3.2
+extern int  waitForInterruptClose(int pin) ; //V3.2 legacy use wiringPiISRStop
+/***/
 
 // Threads
 extern int  piThreadCreate      (void *(*fn)(void *)) ;
