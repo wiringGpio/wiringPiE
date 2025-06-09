@@ -2171,6 +2171,48 @@ void pinModeAlt(int pin, int mode)
  }
 
 
+
+/***  Added for Pi 5 Updates @b2af17e */
+//Default: rp1_set_pad(pin, 0, 1, 0, 1, 1, 1, 0);
+void rp1_set_pad(int pin, int slewfast, int schmitt, int pulldown, int pullup, int drive, int inputenable, int outputdisable) 
+{
+  pads[1+pin] = (slewfast != 0) | ((schmitt != 0) << 1) | ((pulldown != 0) << 2) | ((pullup != 0) << 3) | ((drive & 0x3) << 4) | ((inputenable != 0) << 6) | ((outputdisable != 0) << 7);
+}
+
+void pinModeFlagsDevice (int pin, int mode, const unsigned int flags) 
+{
+  unsigned int lflag = flags;
+  if (wiringPiDebug) 
+  {
+      printf ("pinModeFlagsDevice: pin:%d mode:%d, flags: %u\n", pin, mode, flags);
+  }
+  lflag &= ~(WPI_FLAG_INPUT | WPI_FLAG_OUTPUT);
+  switch(mode) 
+  {
+    default:
+      fprintf(stderr, "pinMode: invalid mode request (only input und output supported)\n");
+      return;
+    case INPUT:
+      lflag |= WPI_FLAG_INPUT;
+      break;
+    case OUTPUT:
+      lflag |= WPI_FLAG_OUTPUT;
+      break;
+    case PM_OFF:
+      pinModeFlagsDevice(pin, INPUT, 0);
+      releaseLine(pin);
+      return;
+  }
+
+  requestLineV2(pin, lflag);
+}
+
+void pinModeDevice (int pin, int mode) 
+{
+  pinModeFlagsDevice(pin, mode, lineFlags[pin]);
+}
+/*** @b2af17e */
+
 /*
  * pinMode:
  *	Sets the mode of a pin to be input, output or PWM output
@@ -2350,44 +2392,61 @@ void pinMode(int pin, int mode)
   }
 }
 
+
 /***  Added for Pi 5 Updates @b2af17e */
-//Default: rp1_set_pad(pin, 0, 1, 0, 1, 1, 1, 0);
-void rp1_set_pad(int pin, int slewfast, int schmitt, int pulldown, int pullup, int drive, int inputenable, int outputdisable) 
+void pullUpDnControlDevice(int pin, int pud) 
 {
-  pads[1+pin] = (slewfast != 0) | ((schmitt != 0) << 1) | ((pulldown != 0) << 2) | ((pullup != 0) << 3) | ((drive & 0x3) << 4) | ((inputenable != 0) << 6) | ((outputdisable != 0) << 7);
-}
+  unsigned int flag = lineFlags[pin];
+  unsigned int biasflags = WPI_FLAG_BIAS_OFF | WPI_FLAG_BIAS_UP | WPI_FLAG_BIAS_DOWN;
 
-void pinModeFlagsDevice (int pin, int mode, const unsigned int flags) 
-{
-  unsigned int lflag = flags;
-  if (wiringPiDebug) 
+  flag &= ~biasflags;
+  switch (pud)
   {
-      printf ("pinModeFlagsDevice: pin:%d mode:%d, flags: %u\n", pin, mode, flags);
-  }
-  lflag &= ~(WPI_FLAG_INPUT | WPI_FLAG_OUTPUT);
-  switch(mode) 
-  {
-    default:
-      fprintf(stderr, "pinMode: invalid mode request (only input und output supported)\n");
-      return;
-    case INPUT:
-      lflag |= WPI_FLAG_INPUT;
-      break;
-    case OUTPUT:
-      lflag |= WPI_FLAG_OUTPUT;
-      break;
-    case PM_OFF:
-      pinModeFlagsDevice(pin, INPUT, 0);
-      releaseLine(pin);
-      return;
+    case PUD_OFF:  flag |= WPI_FLAG_BIAS_OFF;   break;
+    case PUD_UP:   flag |= WPI_FLAG_BIAS_UP;   break;
+    case PUD_DOWN: flag |= WPI_FLAG_BIAS_DOWN; break;
+    default: return; /* An illegal value */
   }
 
-  requestLineV2(pin, lflag);
+  // reset input/output
+  if (lineFlags[pin] & WPI_FLAG_OUTPUT) 
+  {
+    pinModeFlagsDevice (pin, OUTPUT, flag);
+  } 
+  else if(lineFlags[pin] & WPI_FLAG_INPUT) 
+  {
+    pinModeFlagsDevice (pin, INPUT, flag);
+  } 
+  else 
+  {
+    lineFlags[pin] = flag; // only store for later
+  }
 }
 
-void pinModeDevice (int pin, int mode) 
+/*
+ helper functions for gpio_v2_line_values bits 
+*/
+static inline void gpiotools_set_bit(__u64 *b, int n)
 {
-  pinModeFlagsDevice(pin, mode, lineFlags[pin]);
+	*b |= _BITULL(n);
+}
+
+static inline void gpiotools_clear_bit(__u64 *b, int n)
+{
+	*b &= ~_BITULL(n);
+}
+
+static inline void gpiotools_assign_bit(__u64 *b, int n, bool value)
+{
+	if (value)
+		gpiotools_set_bit(b, n);
+	else
+		gpiotools_clear_bit(b, n);
+}
+
+static inline int gpiotools_test_bit(__u64 b, int n)
+{
+	return !!(b & _BITULL(n));
 }
 /*** @b2af17e */
 
@@ -2481,62 +2540,40 @@ void pullUpDnControl(int pin, int pud)
 }
 
 
-/***  Added for Pi 5 Updates @b2af17e */
-void pullUpDnControlDevice (int pin, int pud) 
-{
-  unsigned int flag = lineFlags[pin];
-  unsigned int biasflags = WPI_FLAG_BIAS_OFF | WPI_FLAG_BIAS_UP | WPI_FLAG_BIAS_DOWN;
-
-  flag &= ~biasflags;
-  switch (pud)
-  {
-    case PUD_OFF:  flag |= WPI_FLAG_BIAS_OFF;   break;
-    case PUD_UP:   flag |= WPI_FLAG_BIAS_UP;   break;
-    case PUD_DOWN: flag |= WPI_FLAG_BIAS_DOWN; break;
-    default: return; /* An illegal value */
-  }
-
-  // reset input/output
-  if (lineFlags[pin] & WPI_FLAG_OUTPUT) 
-  {
-    pinModeFlagsDevice (pin, OUTPUT, flag);
-  } 
-  else if(lineFlags[pin] & WPI_FLAG_INPUT) 
-  {
-    pinModeFlagsDevice (pin, INPUT, flag);
-  } 
-  else 
-  {
-    lineFlags[pin] = flag; // only store for later
-  }
-}
 
 /*
- helper functions for gpio_v2_line_values bits 
-*/
-static inline void gpiotools_set_bit(__u64 *b, int n)
+ * digitalReadDeviceV2:
+ *	Read the value of a given Pin, returning HIGH or LOW
+ * 
+ *  added for Pi 5 Updates @b2af17e 
+ *********************************************************************************
+ */
+int digitalReadDeviceV2(int pin) 
 {
-	*b |= _BITULL(n);
+  // INPUT and OUTPUT should work
+  struct gpio_v2_line_values lv;
+  int ret;
+  
+  if (lineFds[pin]<0) 
+  {
+    // line not requested - auto request on first read as input
+     pinModeDevice(pin, INPUT);
+  }
+  lv.mask = 0;
+  lv.bits = 0;
+  if (lineFds[pin]>=0) 
+  {
+    gpiotools_set_bit(&lv.mask, 0); 
+    ret = ioctl(lineFds[pin], GPIO_V2_LINE_GET_VALUES_IOCTL, &lv);
+    if (ret) 
+    {
+      ReportDeviceError("get line values", pin, "digitalRead", ret);
+      return LOW;  // error
+    }
+    return gpiotools_test_bit(lv.bits, 0);
+  }
+  return LOW;  // error , need to request line before
 }
-
-static inline void gpiotools_clear_bit(__u64 *b, int n)
-{
-	*b &= ~_BITULL(n);
-}
-
-static inline void gpiotools_assign_bit(__u64 *b, int n, bool value)
-{
-	if (value)
-		gpiotools_set_bit(b, n);
-	else
-		gpiotools_clear_bit(b, n);
-}
-
-static inline int gpiotools_test_bit(__u64 b, int n)
-{
-	return !!(b & _BITULL(n));
-}
-/*** @b2af17e */
 
 
 /*
@@ -2597,6 +2634,50 @@ int digitalRead(int pin)
       return LOW;
     return node->digitalRead (node, pin);
   }
+}
+
+
+
+/*
+ * digitalWriteDeviceV2:
+ *	Set an output bit
+ * 
+ *  added for Pi 5 Updates @b2af17e 
+ *********************************************************************************
+ */
+void digitalWriteDeviceV2(int pin, int value) 
+{
+  int ret;
+  struct gpio_v2_line_values values;
+  
+  if (wiringPiDebug)
+    printf ("digitalWriteDeviceV2: ioctl pin:%d value: %d\n", pin, value);
+
+  if (lineFds[pin]<0)
+  {
+    // line not requested - auto request on first write as output
+    pinModeDevice(pin, OUTPUT);
+  }
+  
+  if (lineFds[pin]>=0 && (lineFlags[pin] & GPIO_V2_LINE_FLAG_OUTPUT)>0) 
+  {
+    values.mask = 0;
+    values.bits = 0;    
+    gpiotools_set_bit(&values.mask, 0);
+    gpiotools_assign_bit(&values.bits, 0, !!value);
+
+    ret = ioctl(lineFds[pin], GPIO_V2_LINE_SET_VALUES_IOCTL, &values);
+    if (ret == -1) 
+    {
+        ReportDeviceError("digitalWriteDeviceV2", pin, "GPIO_V2_LINE_SET_VALUES_IOCTL", ret);
+        return; // error
+    }
+  } 
+  else 
+  {
+    fprintf(stderr, "digitalWriteDeviceV2: no output (%d)\n", lineFlags[pin]);
+  }
+  return; // error
 }
 
 
@@ -2666,88 +2747,8 @@ void digitalWrite(int pin, int value)
   }
 }
 
-
-/*
- * digitalReadDeviceV2:
- *	Read the value of a given Pin, returning HIGH or LOW
- * 
- *  added for Pi 5 Updates @b2af17e 
- *********************************************************************************
- */
-int digitalReadDeviceV2(int pin) 
-{
-  // INPUT and OUTPUT should work
-  struct gpio_v2_line_values lv;
-  int ret;
-  
-  if (lineFds[pin]<0) 
-  {
-    // line not requested - auto request on first read as input
-     pinModeDevice(pin, INPUT);
-  }
-  lv.mask = 0;
-  lv.bits = 0;
-  if (lineFds[pin]>=0) 
-  {
-    gpiotools_set_bit(&lv.mask, 0); 
-    ret = ioctl(lineFds[pin], GPIO_V2_LINE_GET_VALUES_IOCTL, &lv);
-    if (ret) 
-    {
-      ReportDeviceError("get line values", pin, "digitalRead", ret);
-      return LOW;  // error
-    }
-    return gpiotools_test_bit(lv.bits, 0);
-  }
-  return LOW;  // error , need to request line before
-}
-
-/*
- * digitalWriteDeviceV2:
- *	Set an output bit
- * 
- *  added for Pi 5 Updates @b2af17e 
- *********************************************************************************
- */
-void digitalWriteDeviceV2(int pin, int value) 
-{
-  int ret;
-  struct gpio_v2_line_values values;
-  
-  if (wiringPiDebug)
-    printf ("digitalWriteDeviceV2: ioctl pin:%d value: %d\n", pin, value);
-
-  if (lineFds[pin]<0)
-  {
-    // line not requested - auto request on first write as output
-    pinModeDevice(pin, OUTPUT);
-  }
-  
-  if (lineFds[pin]>=0 && (lineFlags[pin] & GPIO_V2_LINE_FLAG_OUTPUT)>0) 
-  {
-    values.mask = 0;
-    values.bits = 0;    
-    gpiotools_set_bit(&values.mask, 0);
-    gpiotools_assign_bit(&values.bits, 0, !!value);
-
-    ret = ioctl(lineFds[pin], GPIO_V2_LINE_SET_VALUES_IOCTL, &values);
-    if (ret == -1) 
-    {
-        ReportDeviceError("digitalWriteDeviceV2", pin, "GPIO_V2_LINE_SET_VALUES_IOCTL", ret);
-        return; // error
-    }
-  } 
-  else 
-  {
-    fprintf(stderr, "digitalWriteDeviceV2: no output (%d)\n", lineFlags[pin]);
-  }
-  return; // error
-}
-
-
-
   
 float pwmFrequency0 = 0;
-
 /*
  * PWM Set Frequency
  */
@@ -3294,21 +3295,6 @@ static void* interruptHandler(UNU void* arg)
 
 
 /*
- * wiringPiISR:
- *	Pi Specific.
- *	Take the details and create an interrupt handler that will do a call-
- *	back to the user supplied function.
- * 
- *  modified for Pi 5 Updates @b2af17e 
- *********************************************************************************
- */
-
-int wiringPiISR(int pin, int mode, void (*function)(void))
-{
-  return wiringPiISRInternal(pin, mode, NULL, function, 0, NULL);
-}
-
-/*
  * interruptHandlerV2:
  *	This is a thread and gets started to wait for the interrupt we're
  *	hoping to catch. It will call the user-function when the interrupt
@@ -3589,7 +3575,6 @@ int wiringPiISRInternal(int pin, int edgeMode, void (*function)(struct WPIWfiSta
 }
 
 
-
 /*
  * wiringPiISRStop:
  * stop interruptHandler thread and
@@ -3689,8 +3674,6 @@ int waitForInterruptClose(int pin)
 }
 
 
-
-
 /*
  * wiringPiISR2:
  *	Pi Specific.
@@ -3707,6 +3690,23 @@ int wiringPiISR2(int pin, int edgeMode, void (*function)(struct WPIWfiStatus wfi
 {
   return wiringPiISRInternal(pin, edgeMode, function, NULL, debounce_period_us, userdata);
 }
+
+
+/*
+ * wiringPiISR:
+ *	Pi Specific.
+ *	Take the details and create an interrupt handler that will do a call-
+ *	back to the user supplied function.
+ * 
+ *  modified for Pi 5 Updates @b2af17e 
+ *********************************************************************************
+ */
+
+int wiringPiISR(int pin, int mode, void (*function)(void))
+{
+  return wiringPiISRInternal(pin, mode, NULL, function, 0, NULL);
+}
+
 
 
 /*
