@@ -4330,44 +4330,6 @@ int wiringPiSetupPhys(void)
 
 
 /*
- * wiringPiSetupSys:
- * GPIO Sysfs Interface for Userspace is deprecated
- *   https://www.kernel.org/doc/html/v5.5/admin-guide/gpio/sysfs.html
- *
- * Switched to new GPIO driver Interface in version 3.3
- */
-
-int wiringPiSetupSys(void)
-{
-  if (wiringPiSetuped)
-    return 0;
-  if (wiringPiDebug)
-    printf ("wiringPi: wiringPiSetupSys called\n");
-  return wiringPiSetupGpioDevice(WPI_PIN_BCM);
-}
-
-
-
-/*
- * wiringPiSetupPinType:
- * 
- *  added for Pi 5 Updates @b2af17e 
- *********************************************************************************
- */
-
-int wiringPiSetupPinType(enum WPIPinType pinType) {
-  if (wiringPiDebug)
-    printf ("wiringPi: wiringPiSetupPinType(%d) called\n", (int) pinType);
-  switch (pinType) 
-  {
-    case WPI_PIN_BCM:  return wiringPiSetupGpio();
-    case WPI_PIN_WPI:  return wiringPiSetup();
-    case WPI_PIN_PHYS: return wiringPiSetupPhys();
-    default:           return -1;
-  }
-}
-
-/*
  * wiringPiSetupGpioDevice:
  * 
  *  added for Pi 5 Updates @b2af17e 
@@ -4423,4 +4385,42 @@ int wiringPiSetupGpioDevice(enum WPIPinType pinType)
   }
 
   return 0;
+}
+
+/*
+ * wiringPiSetupSys:
+ * GPIO Sysfs Interface for Userspace is deprecated
+ *   https://www.kernel.org/doc/html/v5.5/admin-guide/gpio/sysfs.html
+ *
+ * Switched to new GPIO driver Interface in version 3.3
+ */
+
+int wiringPiSetupSys(void)
+{
+  if (wiringPiSetuped)
+    return 0;
+  if (wiringPiDebug)
+    printf ("wiringPi: wiringPiSetupSys called\n");
+  return wiringPiSetupGpioDevice(WPI_PIN_BCM);
+}
+
+
+
+/*
+ * wiringPiSetupPinType:
+ * 
+ *  added for Pi 5 Updates @b2af17e 
+ *********************************************************************************
+ */
+
+int wiringPiSetupPinType(enum WPIPinType pinType) {
+  if (wiringPiDebug)
+    printf ("wiringPi: wiringPiSetupPinType(%d) called\n", (int) pinType);
+  switch (pinType) 
+  {
+    case WPI_PIN_BCM:  return wiringPiSetupGpio();
+    case WPI_PIN_WPI:  return wiringPiSetup();
+    case WPI_PIN_PHYS: return wiringPiSetupPhys();
+    default:           return -1;
+  }
 }
