@@ -44,9 +44,31 @@ check_make_ok() {
 }
 
 sudo=${WIRINGPI_SUDO-sudo}
+
 config=$2
 
-if [ x$1 = "xclean" ]; then
+# Allow: no config (default rpi build), or specific configuration
+if [ $# -gt 2 ]; then
+  echo "Usage: $0 [clean | uninstall] [config]"
+  echo "Supported configurations: 'rpios' | 'generic'"
+  exit 1
+fi
+
+if [ x$1 = "xhelp" ] || [ x$1 = "x--help" ]; then
+  echo "Usage: $0 [clean | uninstall] [config]"
+  echo "Supported configurations: 'rpios' | 'generic'"
+  exit 0
+fi
+
+action="$1"
+config=""
+if [ x$2 = "xgeneric" ]; then
+  config="generic"
+elif [ x$2 = "xrpios" ]; then
+  config="rpios"
+fi
+
+if [ x$action = "xclean" ]; then
   cd wiringPi
   echo -n "wiringPi:   " ; make clean $config
   cd ../devLib
@@ -71,7 +93,7 @@ if [ x$1 = "xclean" ]; then
   exit
 fi
 
-if [ x$1 = "xuninstall" ]; then
+if [ x$action = "xuninstall" ]; then
   cd wiringPi
   echo -n "wiringPi: " ; $sudo make uninstall $config
   cd ../devLib
@@ -81,73 +103,37 @@ if [ x$1 = "xuninstall" ]; then
   exit
 fi
 
-# Only if you know what you're doing!
+# Main build logic
 
-if [ x$1 = "xdebian" ]; then
-  here=`pwd`
-  deb_destdir=${here}/debian-template/wiringPi
-  cd debian-template/wiringPi
-  rm -rf usr
-  cd $here/wiringPi
-  make install-deb DEB_DESTDIR=${deb_destdir} $config
-  cd $here/devLib
-  make install-deb INCLUDE='-I. -I../wiringPi' DEB_DESTDIR=${deb_destdir} $config
-  cd $here/gpio
-  make install-deb INCLUDE='-I../wiringPi -I../devLib' LDFLAGS=-L../debian-template/wiringPi/usr/lib DEB_DESTDIR=${deb_destdir} $config
-  cd $here/debian-template
-  fakeroot dpkg-deb --build wiringPi
-  mv wiringPi.deb  wiringpi-`cat $here/VERSION`-1.deb
-  exit
-fi
+echo "wiringPi Build script"
+echo "====================="
+echo
 
-if [ x$1 != "x" ]; then
-  echo "Usage: $0 [clean | uninstall] [config]"
-  exit 1
-fi
+hardware=`fgrep Hardware /proc/cpuinfo | head -1 | awk '{ print $3 }'`
 
-  echo "wiringPi Build script"
-  echo "====================="
-  echo
+echo
+echo "WiringPi Library"
+cd wiringPi
+make -j5 $config
+check_make_ok
+$sudo make install $config
+check_make_ok
 
-  hardware=`fgrep Hardware /proc/cpuinfo | head -1 | awk '{ print $3 }'`
+echo
+echo "WiringPi Devices Library"
+cd ../devLib
+make -j5 $config
+check_make_ok
+$sudo make install $config
+check_make_ok
 
-  echo
-  echo "WiringPi Library"
-  cd wiringPi
-  $sudo make uninstall $config
-  if [ x$1 = "xstatic" ]; then
-    make -j5 static $config
-    check_make_ok
-    $sudo make install-static $config
-  else
-    make -j5 $config
-    check_make_ok
-    $sudo make install $config
-  fi
-  check_make_ok
-
-  echo
-  echo "WiringPi Devices Library"
-  cd ../devLib
-  $sudo make uninstall $config
-  if [ x$1 = "xstatic" ]; then
-    make -j5 static $config
-    check_make_ok
-    $sudo make install-static $config
-  else
-    make -j5 $config
-    check_make_ok
-    $sudo make install $config
-  fi
-  check_make_ok
-
-  echo
-  echo "GPIO Utility"
-  cd ../gpio
-  make -j5 $config
-  check_make_ok
-  $sudo make install $config
-  check_make_ok
+echo
+echo "GPIO Utility"
+cd ../gpio
+make -j5 $config
+check_make_ok
+$sudo make install $config
+check_make_ok
 
 # echo
 # echo "wiringPi Daemon"
