@@ -96,14 +96,18 @@ tags:	$(SRC)
 	$Q ctags $(SRC)
 
 
+# Ensure DESTDIR/PREFIX, include, and lib exist before any action
+preinstall_dirs = \
+	[ -d $(DESTDIR)$(PREFIX) ] || install -m 0755 -d $(DESTDIR)$(PREFIX); \
+	[ -d $(DESTDIR)$(PREFIX)/include ] || install -m 0755 -d $(DESTDIR)$(PREFIX)/include; \
+	[ -d $(DESTDIR)$(PREFIX)/lib ] || install -m 0755 -d $(DESTDIR)$(PREFIX)/lib;
+
 .PHONY:	install
 install:	$(DYNAMIC)
 	$Q echo "[Install Headers]"
-	$Q [ -d $(DESTDIR)$(PREFIX) ] || install -m 0755 -d $(DESTDIR)$(PREFIX)
-	$Q [ -d $(DESTDIR)$(PREFIX)/include ] || install -m 0755 -d $(DESTDIR)$(PREFIX)/include
+	$Q $(preinstall_dirs)
 	$Q install -m 0644 $(HEADERS)					$(DESTDIR)$(PREFIX)/include
 	$Q echo "[Install Dynamic Lib]"
-	$Q [ -d $(DESTDIR)$(PREFIX)/lib ] || install -m 0755 -d $(DESTDIR)$(PREFIX)/lib
 	$Q install -m 0755 libwiringPi.so.$(VERSION)			$(DESTDIR)$(PREFIX)/lib/libwiringPi.so.$(VERSION)
 	$Q ln -sf $(DESTDIR)$(PREFIX)/lib/libwiringPi.so.$(VERSION)	$(DESTDIR)/lib/libwiringPi.so
 	$Q $(LDCONFIG)
@@ -126,6 +130,7 @@ install-deb:	$(DYNAMIC) check-deb-destdir
 
 .PHONY:	uninstall
 uninstall:
+	$Q $(preinstall_dirs)
 	$Q echo "[UnInstall]"
 	$Q cd $(DESTDIR)$(PREFIX)/include/ && rm -f $(HEADERS)
 	$Q cd $(DESTDIR)$(PREFIX)/lib/     && rm -f libwiringPi.*
