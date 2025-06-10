@@ -12,8 +12,9 @@ This fork of wiringPi has a few modifications from the original:
 - A few additional methods are added to support get and set PWM controller properties.
 - Support for the second I2C bus on the Raspberry Pi (bus 0).
 - All functions that setup an I2C, SPI, or serial port device return the file descriptor on success or -1 for error.
-- A simple logging framework with a callback function is implemented so you can monitor and display logs in  your program code.
+- A simple logging framework with a callback function is implemented so you can monitor and display logs in your program code.
 - Program error handling is modified; original wiringPi would exit on non fatal errors, this implementation will log an error message and return NULL or -1 to let the program handle it.
+- Support for Raspberry Pi 5 using code cherry picked from github WiringPi at commit b2af17e
 
 The goal for creating this modified version of wiringPi is for use with the wiringGpioExtensions library. The wiringGpioExtensions library allows you to write GPIO control code and build it for either Raspberry Pi or NVIDIA Jetson simply by changing the linker settings. It also provides some commonly used functions to control stepper motors, rotary encoders, seven segment displays, and more.
 
@@ -23,14 +24,6 @@ Use the build script to compile and install the library on your Pi.
 ```
 $ chmod +x build
 $ sudo ./build
-```
-
-If your Raspberry Pi OS does not use the expected directory layout, the build might fail with an error indicating the folders /usr/local/lib or /include are not found.  To fix this, run the following commands then try again.
-
-```
-$ sudo mkdir /usr/local
-$ sudo mkdir /usr/local/lib
-$ sudo mkdir /usr/local/include
 ```
 
 To uninstall 
