@@ -22,15 +22,8 @@
 #################################################################################
 
 VERSION=$(shell cat ../VERSION)
-
-# Build configuration
-ifeq ($(MAKECMDGOALS),generic)
-DESTDIR=/usr
-PREFIX=
-else
 DESTDIR?=/usr
 PREFIX?=/local
-endif
 
 LDCONFIG?=ldconfig
 
@@ -53,25 +46,25 @@ LIBS    = -lm -lpthread -lrt -lcrypt
 
 ###############################################################################
 
-SRC	=	wiringPi.c						\
-		Logging.c						\
+SRC	=	wiringPi.c									\
+		Logging.c									\
 		wiringSerial.c wiringShift.c				\
-		piHiPri.c piThread.c					\
-		wiringPiSPI.c wiringPiI2C.c				\
-		softPwm.c softTone.c					\
+		piHiPri.c piThread.c						\
+		wiringPiSPI.c wiringPiI2C.c					\
+		softPwm.c softTone.c						\
 		mcp23008.c mcp23016.c mcp23017.c			\
-		mcp23s08.c mcp23s17.c					\
-		pca9685.c				\
-		sr595.c							\
-		pcf8574.c pcf8591.c					\
-		mcp3002.c mcp3004.c mcp4802.c mcp3422.c			\
+		mcp23s08.c mcp23s17.c						\
+		pca9685.c									\
+		sr595.c										\
+		pcf8574.c pcf8591.c							\
+		mcp3002.c mcp3004.c mcp4802.c mcp3422.c		\
 		max31855.c max5322.c ads1115.c				\
-		sn3218.c						\
+		sn3218.c									\
 		bmp180.c htu21d.c ds18b20.c rht03.c			\
-		drcSerial.c drcNet.c					\
-		pseudoPins.c						\
-		wpiExtensions.c						\
-		wiringPiLegacy.c
+		drcSerial.c drcNet.c						\
+		pseudoPins.c								\
+		wpiExtensions.c								\
+		wiringPiLegacy.c 
 
 HEADERS =	$(shell ls *.h)
 
@@ -106,10 +99,11 @@ tags:	$(SRC)
 .PHONY:	install
 install:	$(DYNAMIC)
 	$Q echo "[Install Headers]"
-	$Q install -m 0755 -d						$(DESTDIR)$(PREFIX)/include
+	$Q [ -d $(DESTDIR)$(PREFIX) ] || install -m 0755 -d $(DESTDIR)$(PREFIX)
+	$Q [ -d $(DESTDIR)$(PREFIX)/include ] || install -m 0755 -d $(DESTDIR)$(PREFIX)/include
 	$Q install -m 0644 $(HEADERS)					$(DESTDIR)$(PREFIX)/include
 	$Q echo "[Install Dynamic Lib]"
-	$Q install -m 0755 -d						$(DESTDIR)$(PREFIX)/lib
+	$Q [ -d $(DESTDIR)$(PREFIX)/lib ] || install -m 0755 -d $(DESTDIR)$(PREFIX)/lib
 	$Q install -m 0755 libwiringPi.so.$(VERSION)			$(DESTDIR)$(PREFIX)/lib/libwiringPi.so.$(VERSION)
 	$Q ln -sf $(DESTDIR)$(PREFIX)/lib/libwiringPi.so.$(VERSION)	$(DESTDIR)/lib/libwiringPi.so
 	$Q $(LDCONFIG)

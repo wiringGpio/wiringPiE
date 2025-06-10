@@ -4,7 +4,7 @@
 #	  A swiss-army knige of GPIO shenanigans.
 #	https://github.com/wiringPi/wiringPi
 #
-#	Copyright (c) 2012-2024 Gordon Henderson and contributors
+#	Copyright (c) 2012-2016 Gordon Henderson
 #################################################################################
 # This file is part of wiringPi:
 #	A "wiring" library for the Raspberry Pi
@@ -23,14 +23,8 @@
 #    along with wiringPi.  If not, see <http://www.gnu.org/licenses/>.
 #################################################################################
 
-# Build configuration
-ifeq ($(MAKECMDGOALS),generic)
-DESTDIR=/usr
-PREFIX=
-else
-DESTDIR=/usr
-PREFIX=/local
-endif
+DESTDIR?=/usr
+PREFIX?=/local
 
 ifneq ($V,1)
 Q ?= @
@@ -81,7 +75,7 @@ install: gpio
 	$Q mkdir -p		$(DESTDIR)$(PREFIX)/bin
 	$Q cp gpio		$(DESTDIR)$(PREFIX)/bin
 ifneq ($(WIRINGPI_SUID),0)
-	$Q chown root:root	$(DESTDIR)$(PREFIX)/bin/gpio
+	$Q chown root.root	$(DESTDIR)$(PREFIX)/bin/gpio
 	$Q chmod 4755		$(DESTDIR)$(PREFIX)/bin/gpio
 endif
 	$Q mkdir -p		$(DESTDIR)$(PREFIX)/share/man/man1

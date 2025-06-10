@@ -45,95 +45,108 @@ check_make_ok() {
 
 sudo=${WIRINGPI_SUDO-sudo}
 
-config=$2
-
-# Allow: no config (default rpi build), or specific configuration
-if [ $# -gt 2 ]; then
-  echo "Usage: $0 [clean | uninstall] [config]"
-  echo "Supported configurations: 'rpios' | 'generic'"
-  exit 1
-fi
-
-if [ x$1 = "xhelp" ] || [ x$1 = "x--help" ]; then
-  echo "Usage: $0 [clean | uninstall] [config]"
-  echo "Supported configurations: 'rpios' | 'generic'"
-  exit 0
-fi
-
-action="$1"
-config=""
-if [ x$2 = "xgeneric" ]; then
-  config="generic"
-elif [ x$2 = "xrpios" ]; then
-  config="rpios"
-fi
-
-if [ x$action = "xclean" ]; then
+if [ x$1 = "xclean" ]; then
   cd wiringPi
-  echo -n "wiringPi:   " ; make clean $config
+  echo -n "wiringPi:   "	; make clean
   cd ../devLib
-  echo -n "DevLib:     " ; make clean $config
+  echo -n "DevLib:     "	; make clean
   cd ../gpio
-  echo -n "gpio:       " ; make clean $config
+  echo -n "gpio:       "	; make clean
   cd ../examples
-  echo -n "Examples:   " ; make clean $config
+  echo -n "Examples:   "	; make clean
   cd Gertboard
-  echo -n "Gertboard:  " ; make clean $config
+  echo -n "Gertboard:  "	; make clean
   cd ../PiFace
-  echo -n "PiFace:     " ; make clean $config
+  echo -n "PiFace:     "	; make clean
   cd ../q2w
-  echo -n "Quick2Wire: " ; make clean $config
+  echo -n "Quick2Wire: "	; make clean
   cd ../PiGlow
-  echo -n "PiGlow:     " ; make clean $config
+  echo -n "PiGlow:     "	; make clean
   cd ../scrollPhat
-  echo -n "scrollPhat: " ; make clean $config
+  echo -n "scrollPhat: "	; make clean
   cd ../..
   echo -n "Deb: " ; rm  -f debian-template/wiringpi*.deb
   echo
   exit
 fi
 
-if [ x$action = "xuninstall" ]; then
+if [ x$1 = "xuninstall" ]; then
   cd wiringPi
-  echo -n "wiringPi: " ; $sudo make uninstall $config
+  echo -n "wiringPi: " ; $sudo make uninstall
   cd ../devLib
-  echo -n "DevLib:   " ; $sudo make uninstall $config
+  echo -n "DevLib:   " ; $sudo make uninstall
   cd ../gpio
-  echo -n "gpio:     " ; $sudo make uninstall $config
+  echo -n "gpio:     " ; $sudo make uninstall
   exit
 fi
 
-# Main build logic
+# Only if you know what you're doing!
 
-echo "wiringPi Build script"
-echo "====================="
-echo
+if [ x$1 = "xdebian" ]; then
+  here=`pwd`
+  deb_destdir=${here}/debian-template/wiringPi
+  cd debian-template/wiringPi
+  rm -rf usr
+  cd $here/wiringPi
+  make install-deb DEB_DESTDIR=${deb_destdir}
+  cd $here/devLib
+  make install-deb INCLUDE='-I. -I../wiringPi' DEB_DESTDIR=${deb_destdir}
+  cd $here/gpio
+  make install-deb INCLUDE='-I../wiringPi -I../devLib' LDFLAGS=-L../debian-template/wiringPi/usr/lib DEB_DESTDIR=${deb_destdir}
+  cd $here/debian-template
+  fakeroot dpkg-deb --build wiringPi
+  mv wiringPi.deb  wiringpi-`cat $here/VERSION`-1.deb
+  exit
+fi
 
-hardware=`fgrep Hardware /proc/cpuinfo | head -1 | awk '{ print $3 }'`
+if [ x$1 != "x" ]; then
+  echo "Usage: $0 [clean | uninstall]"
+  exit 1
+fi
 
-echo
-echo "WiringPi Library"
-cd wiringPi
-make -j5 $config
-check_make_ok
-$sudo make install $config
-check_make_ok
+  echo "wiringPi Build script"
+  echo "====================="
+  echo
 
-echo
-echo "WiringPi Devices Library"
-cd ../devLib
-make -j5 $config
-check_make_ok
-$sudo make install $config
-check_make_ok
+  hardware=`fgrep Hardware /proc/cpuinfo | head -1 | awk '{ print $3 }'`
 
-echo
-echo "GPIO Utility"
-cd ../gpio
-make -j5 $config
-check_make_ok
-$sudo make install $config
-check_make_ok
+  echo
+  echo "WiringPi Library"
+  cd wiringPi
+  $sudo make uninstall
+  if [ x$1 = "xstatic" ]; then
+    make -j5 static
+    check_make_ok
+    $sudo make install-static
+  else
+    make -j5
+    check_make_ok
+    $sudo make install
+  fi
+  check_make_ok
+
+  echo
+  echo "WiringPi Devices Library"
+  cd ../devLib
+  $sudo make uninstall
+  if [ x$1 = "xstatic" ]; then
+    make -j5 static
+    check_make_ok
+    $sudo make install-static
+  else
+    make -j5
+    check_make_ok
+    $sudo make install
+  fi
+  check_make_ok
+
+  echo
+  echo "GPIO Utility"
+  cd ../gpio
+  make -j5
+  check_make_ok
+  $sudo make install
+  check_make_ok
 
 # echo
 # echo "wiringPi Daemon"
